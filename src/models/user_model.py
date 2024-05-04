@@ -1,19 +1,21 @@
 from typing import Optional
 from pydantic import BaseModel
 
-class UserBase(BaseModel):
+from src.models.base_entity import BaseEntity
+
+class UserBase(BaseEntity):
     name: str
     email: str
 
-class UserCreate(UserBase):
+class UserCreate(BaseEntity):
     pass
 
-class UserRead(UserBase):
+class UserRead(BaseEntity):
     id: int
+    name: str
+    email: str
 
-    class Config:
-        orm_mode = True
 
-class UserUpdate(BaseModel):
+class UserUpdate(BaseEntity):
     name: Optional[str] = None
     email: Optional[str] = None

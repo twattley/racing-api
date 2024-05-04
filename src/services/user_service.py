@@ -9,3 +9,6 @@ class UserService:
 
     async def get_user(self, user_id: int):
         return await self.user_dao.get_user_by_id(user_id)
+    
+    async def get_user_by_name(self, user_name: str):
+        return await self.user_dao.get_user_by_name(user_name)
