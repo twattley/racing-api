@@ -1,18 +1,18 @@
 import json
 import logging
 from contextvars import ContextVar
-from typing import Callable, Awaitable, Optional
-
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-    async_scoped_session,
-    async_sessionmaker,
-)
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from typing import Awaitable, Callable, Optional
 
 import pydantic.json
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_scoped_session,
+    async_sessionmaker,
+    create_async_engine,
+)
+
 from src.configs.settings import create_db_url, get_settings
 
 # Setting up the logger
@@ -30,11 +30,11 @@ engine = create_async_engine(
     json_serializer=lambda *args, **kwargs: json.dumps(
         *args, default=pydantic.json.pydantic_encoder, **kwargs
     ),
-    pool_size=settings.postgresql_pool_size,
+    pool_size=settings.db_pool_size,
     max_overflow=0,
     connect_args={
-        "command_timeout": settings.postgresql_query_timeout,
-        "timeout": settings.postgresql_conn_timeout,
+        "command_timeout": settings.db_query_timeout,
+        "timeout": settings.db_conn_timeout,
     },
 )
 

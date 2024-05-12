@@ -1,10 +1,11 @@
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
 Base = declarative_base()
 
+
 class UserSchema(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)

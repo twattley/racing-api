@@ -3,22 +3,35 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+"""
+DB_NAME=test_db
+DB_ENDPOINT=localhost:5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_POOL_SIZE=20
+DB_CONN_TIMEOUT=10
+DB_QUERY_TIMEOUT=10
+SERVICE_NAME=user_api_service
+API_SERVER_HOST=0.0.0.0
+API_SERVER_PORT=8000
+
+"""
+
 
 class Settings(BaseSettings):
-    postgresql_username: str = "postgres"
-    postgresql_dbname: str = "test_db"
-    postgresql_endpoint: str = "localhost:5432"
-    postgresql_password: str = "postgres"
-    postgresql_pool_size: int = 20
-    postgresql_conn_timeout: int = 10  # connection timeout for PostgreSQL server, in seconds
-    postgresql_query_timeout: int = 10  # query timout for PostgreSQL server, in seconds
+    db_name: str
+    db_username: str
+    db_endpoint: str
+    db_password: str
+    db_pool_size: int
+    db_conn_timeout: int
+    db_query_timeout: int
+    service_name: str
+    api_host: str
+    api_port: int
 
-    service_name: str = "user_api_service"
 
-    api_server_host: str = "0.0.0.0"
-    api_server_port: int = 8000
-
-def get_settings(env_path: Path | None = None) -> Settings:
+def get_settings(env_path: Path = Path(".env")) -> Settings:
     if env_path:
         load_dotenv(dotenv_path=env_path, override=True)
     return Settings()
@@ -30,4 +43,4 @@ def create_db_url(settings: Settings, is_async: bool = True) -> str:
 
     prefix = f"{postgresql}+{asyncpg}" if is_async else f"{postgresql}"
 
-    return f"{prefix}://{settings.postgresql_username}:{settings.postgresql_password}@{settings.postgresql_endpoint}/{settings.postgresql_dbname}"
+    return f"{prefix}://{settings.db_username}:{settings.db_password}@{settings.db_endpoint}/{settings.db_name}"

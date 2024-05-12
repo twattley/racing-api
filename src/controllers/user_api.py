@@ -1,28 +1,37 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.services.user_service import UserService
-from src.daos.user_dao import UserDAO
-from src.helpers.postgres import get_current_session
 from typing import List
-from src.models.user_model import UserRead
+
+from fastapi import APIRouter, Depends, Query, Request
+
+from src.models.user_model import UserListResponse, UserRead  
+from src.services.user_service import UserService, get_user_service
 
 router = APIRouter()
+@router.get("/users/", response_model=UserListResponse)
+async def read_all_users(
+    request: Request,
+    page: int = Query(1, ge=1, description="Page number starting from 1"),
+    limit: int = Query(
+        10, ge=1, le=100, description="Number of items per page, up to 100"
+    ),
+    service: UserService = Depends(get_user_service),
+):
+    users, pagination_links = await service.get_users(
+        request.url, page, limit
+    )
+    return {"data": users, "links": pagination_links.dict()}
 
-# Dependency to provide session for each request
-def get_dao(session: AsyncSession = Depends(get_current_session)):
-    return UserDAO(session)
-
-@router.get("/users/", response_model=List[UserRead])
-async def read_all_users(user_dao: UserDAO = Depends(get_dao)):
-    user_service = UserService(user_dao)
-    return await user_service.get_users()
 
 @router.get("/users/{user_id}", response_model=UserRead)
-async def read_user(user_id: int, user_dao: UserDAO = Depends(get_dao)):
-    user_service = UserService(user_dao)
-    return await user_service.get_user(user_id)
+async def read_user(
+    user_id: int,
+    service: UserService = Depends(get_user_service),
+):
+    return await service.get_user(user_id)
+
 
 @router.get("/users/name/{user_name}")
-async def read_user(user_name: str, user_dao: UserDAO = Depends(get_dao)) -> UserRead:
-    user_service = UserService(user_dao)
-    return await user_service.get_user_by_name(user_name)
+async def read_user(
+    user_name: str,
+    service: UserService = Depends(get_user_service),
+) -> UserRead:
+    return await service.get_user_by_name(user_name)

@@ -1,12 +1,11 @@
 import asyncio
+
 import uvicorn
 from fastapi import FastAPI
 from starlette_context.middleware import RawContextMiddleware
 
-from src.configs.settings import Settings
-from src.middlewares.db_session_middleware import DBSessionMiddleware
-
 from src.controllers.user_api import router as UserAPIRouter
+from src.middlewares.db_session_middleware import DBSessionMiddleware
 
 API_PREFIX_V1 = "/users-api/api/v1"
 
@@ -35,6 +34,6 @@ async def main():
     return create_app()
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     app = asyncio.run(main())
     uvicorn.run(app, host="0.0.0.0", port=8000)

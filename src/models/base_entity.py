@@ -1,8 +1,7 @@
-from datetime import datetime
 from typing import Any
-from pydantic import BaseModel, validator
 
-from src.models.validators.time_zone_validator import validate_has_timezone
+from pydantic import BaseModel
+
 
 class BaseEntity(BaseModel):
     def dict(self, *args, **kwargs) -> dict[str, Any]:

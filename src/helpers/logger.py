@@ -31,7 +31,10 @@ class JsonFormatter(logging.Formatter):
         self.datefmt = None
 
     def formatMessage(self, record: logging.LogRecord) -> dict:
-        message_dict = {fmt_key: record.__dict__[fmt_val] for fmt_key, fmt_val in self.fmt_dict.items()}
+        message_dict = {
+            fmt_key: record.__dict__[fmt_val]
+            for fmt_key, fmt_val in self.fmt_dict.items()
+        }
 
         message_dict["service_name"] = self.service_name
 
