@@ -1,7 +1,7 @@
-from typing import Optional, List
-from src.models.pagination_links import PaginationLinks
+from typing import List, Optional
 
 from src.models.base_entity import BaseEntity
+from src.models.pagination_links import PaginationLinks
 
 
 class UserBase(BaseEntity):
@@ -17,6 +17,7 @@ class UserRead(BaseEntity):
     id: int
     name: str
     email: str
+
 
 class UserListResponse(BaseEntity):
     data: List[UserRead]

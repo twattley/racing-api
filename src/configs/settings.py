@@ -44,3 +44,7 @@ def create_db_url(settings: Settings, is_async: bool = True) -> str:
     prefix = f"{postgresql}+{asyncpg}" if is_async else f"{postgresql}"
 
     return f"{prefix}://{settings.db_username}:{settings.db_password}@{settings.db_endpoint}/{settings.db_name}"
+
+
+settings = get_settings()
+db_url = create_db_url(settings)

@@ -3,7 +3,7 @@ from typing import Callable
 from fastapi import Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from src.helpers.postgres import AsyncScopedSession, set_db_session_context
+from src.helpers.session_manager import AsyncScopedSession, set_db_session_context
 
 
 class DBSessionMiddleware(BaseHTTPMiddleware):

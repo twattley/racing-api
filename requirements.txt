@@ -5,3 +5,6 @@ asyncpg
 pydantic
 python-dotenv
 starlette-context
+python-jose
+python-multipart
+bcrypt

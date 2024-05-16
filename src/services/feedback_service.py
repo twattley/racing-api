@@ -6,7 +6,7 @@ from src.models.filters.user_filter import UserFilter
 from src.repository.user_repository import UserRepository, get_user_repository
 
 
-class UserService:
+class FeedbackService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
