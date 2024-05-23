@@ -1,7 +1,7 @@
 from pydantic import AnyUrl
 from starlette.datastructures import URL
 
-from src.models.pagination_links import PaginationLinks
+from ..models.pagination_links import PaginationLinks
 
 
 def build_pagination_links(

@@ -8,3 +8,5 @@ starlette-context
 python-jose
 python-multipart
 bcrypt
+pandas
+pyarrow

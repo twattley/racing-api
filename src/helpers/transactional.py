@@ -1,6 +1,6 @@
 from typing import Awaitable, Callable
 
-from src.helpers.logging_config import logger
+from ..helpers.logging_config import logger
 
 from .session_manager import get_current_session, get_db_session_context
 

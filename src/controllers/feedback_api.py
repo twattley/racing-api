@@ -1,37 +1,32 @@
-from typing import List
-
-from fastapi import APIRouter, Depends, Query, Request
-from fastapi_filter import FilterDepends
-from src.models.performance_data import TodaysRacesResponse
-
-
-from src.services.user_service import UserService, get_user_service
-
-
+from typing import List, Optional
+from fastapi import APIRouter, Depends
+from ..services.feedback_service import FeedbackService, get_feedback_service
+from ..models.performance_data import TodaysPerformanceDataResponse, TodaysRacesResponse, TodaysRacesResultResponse
 
 router = APIRouter()
 
-
-@router.get("/results/feedback/{date}", response_model=TodaysRacesResponse)
+@router.get("/feedback/todays-races/by-date", response_model=List[TodaysRacesResponse])
 async def get_todays_races(
     date: str,
     service: FeedbackService = Depends(get_feedback_service),
 ):
     return await service.get_todays_races(date=date)
 
-
-
-@router.get("/users/{user_id}", response_model=UserRead)
-async def read_user(
-    user_id: int,
-    service: UserService = Depends(get_user_service),
+@router.get("/feedback/todays-races/by-race-id", response_model=List[TodaysPerformanceDataResponse])
+async def get_race_by_id_and_date(
+    date: str,
+    race_id: int,
+    service: FeedbackService = Depends(get_feedback_service),
 ):
-    return await service.get_user(user_id)
+    return await service.get_race_by_id(date=date, race_id=race_id)
+
+@router.get("/feedback/todays-races/result/by-race-id", response_model=List[TodaysRacesResultResponse])
+async def get_race_result_by_id_and_date(
+    date: str,
+    race_id: int,
+    service: FeedbackService = Depends(get_feedback_service),
+):
+    return await service.get_race_result_by_id(date=date, race_id=race_id)
 
 
-@router.get("/users/name/{user_name}")
-async def read_user(
-    user_name: str,
-    service: UserService = Depends(get_user_service),
-) -> UserRead:
-    return await service.get_user_by_name(user_name)
+

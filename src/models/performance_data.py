@@ -1,13 +1,13 @@
 from datetime import date, datetime
-from src.models.base_entity import BaseEntity
+from typing import List, Optional
+from ..models.base_entity import BaseEntity
 
-class TodaysRacesResponse(BaseEntity):
+class TodaysRaceData(BaseEntity):
     race_id: int
     race_time: datetime
-    race_date: date
     race_title: str
     race_type: str
-    race_class: int
+    race_class: Optional[int]
     distance: str
     distance_yards: float
     distance_meters: float
@@ -15,43 +15,53 @@ class TodaysRacesResponse(BaseEntity):
     conditions: str
     going: str
     number_of_runners: int
-    hcap_range: str
+    hcap_range: Optional[str]
     age_range: str
     surface: str
     total_prize_money: int
     first_place_prize_money: int
-    course_id: int
+
+class TodaysCourseData(BaseEntity):
     course: str
-    data_type: str
+    course_id: int
+    races: List[TodaysRaceData]
 
+class TodaysRacesResponse(BaseEntity):
+    race_date: date
+    courses: List[TodaysCourseData]
 
-class TodaysPerformanceDataResponse(BaseEntity):
-    horse_name: str
+class HorseFormData(BaseEntity):
     age: int
     horse_sex: str
-    draw: int
-    headgear: str
+    days_since_last_ran: Optional[int]
+    days_since_performance: Optional[int]
+    draw: Optional[int]
+    headgear: Optional[str]
     weight_carried: str
     weight_carried_lbs: int
-    extra_weight: int
-    jockey_claim: int
-    finishing_position: str
-    total_distance_beaten: float
-    industry_sp: str
-    betfair_win_sp: float
-    betfair_place_sp: float
-    official_rating: int
-    ts: int
-    rpr: int
-    tfr: int
-    tfig: int
-    in_play_high: float
-    in_play_low: float
-    in_race_comment: str
-    tf_comment: str
-    tfr_view: str
+    extra_weight: Optional[int]
+    jockey_claim: Optional[int]
+    finishing_position: Optional[str]
+    number_of_runs: Optional[int]
+    first_places : Optional[int]
+    second_places : Optional[int]
+    third_places : Optional[int]
+    fourth_places : Optional[int]
+    total_distance_beaten: Optional[float]
+    industry_sp: Optional[str]
+    betfair_win_sp: Optional[float]
+    betfair_place_sp: Optional[float]
+    official_rating: Optional[int]
+    ts: Optional[int]
+    rpr: Optional[int]
+    tfr: Optional[int]
+    tfig: Optional[int]
+    in_play_high: Optional[float]
+    in_play_low: Optional[float]
+    in_race_comment: Optional[str]
+    tf_comment: Optional[str]
+    tfr_view: Optional[str]
     race_id: int
-    horse_id: int
     jockey_id: int
     trainer_id: int
     owner_id: int
@@ -62,25 +72,25 @@ class TodaysPerformanceDataResponse(BaseEntity):
     race_date: date
     race_title: str
     race_type: str
-    race_class: int
+    race_class: Optional[int]
     distance: str
     distance_yards: float
     distance_meters: float
     distance_kilometers: float
-    conditions: str
-    going: str
-    number_of_runners: int
-    hcap_range: str
-    age_range: str
-    surface: str
-    total_prize_money: int
-    first_place_prize_money: int
-    winning_time: str
-    time_seconds: float
-    relative_time: float
-    relative_to_standard: str
-    country: str
-    main_race_comment: str
+    conditions: Optional[str]
+    going: Optional[str]
+    number_of_runners: Optional[int]
+    hcap_range: Optional[str]
+    age_range: Optional[str]
+    surface: Optional[str]
+    total_prize_money: Optional[int]
+    first_place_prize_money: Optional[int]
+    winning_time: Optional[str]
+    time_seconds: Optional[float]
+    relative_time: Optional[float]
+    relative_to_standard: Optional[str]
+    country: Optional[str]
+    main_race_comment: Optional[str]
     meeting_id: str
     course_id: int
     course: str
@@ -89,3 +99,36 @@ class TodaysPerformanceDataResponse(BaseEntity):
     trainer: str
     jockey: str
     data_type: str
+
+class TodaysPerformanceDataResponse(BaseEntity):
+    horse_name: str
+    horse_id: int
+    list: List[HorseFormData]
+
+
+class TodaysRacesResultResponse(BaseEntity):
+    horse_name: str
+    finishing_position: Optional[str]
+    total_distance_beaten: Optional[float]
+    industry_sp: Optional[str]
+    betfair_win_sp: Optional[float]
+    betfair_place_sp: Optional[float]
+    ts: Optional[int]
+    rpr: Optional[int]
+    tfr: Optional[int]
+    tfig: Optional[int]
+    in_play_high: Optional[float]
+    in_play_low: Optional[float]
+    in_race_comment: Optional[str]
+    tf_comment: Optional[str]
+    tfr_view: Optional[str]
+    race_id: int
+    horse_id: int
+    unique_id: str
+    winning_time: Optional[str]
+    time_seconds: Optional[float]
+    relative_time: Optional[float]
+    relative_to_standard: Optional[str]
+    main_race_comment: Optional[str]
+    meeting_id: str
+
