@@ -62,9 +62,7 @@ class FeedbackService(BaseService):
                 "first_place_prize_money",
             ],
         )
-        data = data.assign(
-            headgear=data["headgear"].replace('None', None)
-        )
+        data = data.assign(headgear=data["headgear"].replace("None", None))
 
         grouped = data.groupby(["horse_id", "horse_name"])
         return [
@@ -80,7 +78,79 @@ class FeedbackService(BaseService):
 
     async def get_race_result_by_id(self, date: str, race_id: int):
         data = await self.feedback_repository.get_race_result_by_id(date, race_id)
-        return self.data_to_dict(data)
+        data = data.pipe(
+            self.convert_string_columns,
+            [
+                "headgear",
+                "weight_carried",
+                "finishing_position",
+                "tf_comment",
+                "tfr_view",
+            ],
+        )
+        data = data.pipe(
+            self.convert_integer_columns,
+            [
+                "draw",
+                "official_rating",
+                "ts",
+                "rpr",
+                "tfr",
+                "tfig",
+            ],
+        )
+        race_data = (
+            data[
+                [
+                    "race_time",
+                    "race_date",
+                    "race_title",
+                    "race_type",
+                    "race_class",
+                    "distance",
+                    "conditions",
+                    "going",
+                    "number_of_runners",
+                    "hcap_range",
+                    "age_range",
+                    "surface",
+                    "total_prize_money",
+                    "winning_time",
+                    "relative_time",
+                    "relative_to_standard",
+                    "main_race_comment",
+                    "course_id",
+                    "course",
+                    "race_id",
+                ]
+            ]
+            .drop_duplicates(subset=["race_id"])
+            .to_dict(orient="records")[0]
+        )
+        horse_data_list = data[
+            [
+                "horse_name",
+                "horse_id",
+                "age",
+                "draw",
+                "headgear",
+                "weight_carried",
+                "finishing_position",
+                "total_distance_beaten",
+                "betfair_win_sp",
+                "official_rating",
+                "ts",
+                "rpr",
+                "tfr",
+                "tfig",
+                "in_play_high",
+                "in_play_low",
+                "tf_comment",
+                "tfr_view",
+            ]
+        ].to_dict(orient="records")
+        race_data["race_results"] = horse_data_list
+        return [race_data]
 
 
 def get_feedback_service(

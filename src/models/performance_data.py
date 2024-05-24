@@ -105,30 +105,47 @@ class TodaysPerformanceDataResponse(BaseEntity):
     horse_id: int
     list: List[HorseFormData]
 
-
-class TodaysRacesResultResponse(BaseEntity):
+class TodaysRacesResultHorseDataResponse(BaseEntity):
     horse_name: str
+    horse_id: int
+    age: int
+    draw: Optional[int]
+    headgear: Optional[str]
+    weight_carried: Optional[str]
     finishing_position: Optional[str]
     total_distance_beaten: Optional[float]
-    industry_sp: Optional[str]
     betfair_win_sp: Optional[float]
-    betfair_place_sp: Optional[float]
+    official_rating: Optional[int]
     ts: Optional[int]
     rpr: Optional[int]
     tfr: Optional[int]
     tfig: Optional[int]
     in_play_high: Optional[float]
     in_play_low: Optional[float]
-    in_race_comment: Optional[str]
     tf_comment: Optional[str]
     tfr_view: Optional[str]
-    race_id: int
-    horse_id: int
-    unique_id: str
+
+class TodaysRacesResultResponse(BaseEntity):
+    race_time: datetime
+    race_date: date
+    race_title: str
+    race_type: Optional[str]
+    race_class: Optional[int]
+    distance: str
+    conditions: str
+    going: str
+    number_of_runners: int
+    hcap_range: Optional[str]
+    age_range: Optional[str]
+    surface: Optional[str]
+    total_prize_money: Optional[int]
     winning_time: Optional[str]
-    time_seconds: Optional[float]
     relative_time: Optional[float]
     relative_to_standard: Optional[str]
     main_race_comment: Optional[str]
-    meeting_id: str
+    course_id: int
+    course: str
+    race_id: int
+    race_results: List[TodaysRacesResultHorseDataResponse]
+
 
