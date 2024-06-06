@@ -7,10 +7,10 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from ..configs.settings import db_url, settings
+from ..config import db_url, config
 from ..helpers.sql_db import get_engine
 
-engine = get_engine(db_url, settings)
+engine = get_engine(db_url, config)
 db_session_context: ContextVar[Optional[int]] = ContextVar(
     "db_session_context", default=None
 )

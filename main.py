@@ -1,13 +1,13 @@
 import asyncio
-from starlette.middleware.cors import CORSMiddleware
-
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from starlette_context.middleware import RawContextMiddleware
 
 from src.controllers.auth_api import router as AuthAPIRouter
 from src.controllers.feedback_api import router as FeedbackAPIRouter
+from src.controllers.todays_api import router as TodaysAPIRouter
 from src.middlewares.authentication import AuthMiddleware
 from src.middlewares.db_session import DBSessionMiddleware
 
@@ -33,12 +33,16 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=["*"],  # List the URL(s) of your frontend app
         allow_credentials=True,
-        allow_methods=["GET", "POST"],  # Or specify just the methods you need: ['GET', 'POST', etc.]
+        allow_methods=[
+            "GET",
+            "POST",
+        ],  # Or specify just the methods you need: ['GET', 'POST', etc.]
         allow_headers=["*"],  # Or specify just the headers you need
     )
 
     app.include_router(FeedbackAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(AuthAPIRouter, prefix=API_PREFIX_V1)
+    app.include_router(TodaysAPIRouter, prefix=API_PREFIX_V1)
 
     return app
 

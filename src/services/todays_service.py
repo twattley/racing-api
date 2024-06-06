@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 from fastapi import Depends
 
-from ..repository.feedback_repository import FeedbackRepository, get_feedback_repository
+from .betfair_service import BetfairService
+
+from ..repository.todays_repository import TodaysRepository, get_todays_repository
 from ..utils.json_utils import read_json, write_json
 from .base_service import BaseService
 from .transformation_service import TransformationService
@@ -13,29 +15,39 @@ FILTER_YEARS = 3
 FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
 
 
-class FeedbackService(BaseService):
+class TodaysService(BaseService):
+
+    todays_repository: TodaysRepository
+    transformation_service: TransformationService
+    betfair_service: BetfairService
+
     def __init__(
         self,
-        feedback_repository: FeedbackRepository,
+        todays_repository: TodaysRepository,
         transformation_service: TransformationService,
+        betfair_service: BetfairService,
     ):
-        self.feedback_repository = feedback_repository
+        self.todays_repository = todays_repository
         self.transformation_service = transformation_service
+        self.betfair_service = betfair_service
 
     @staticmethod
-    def filter_dataframe_by_date(data: pd.DataFrame, date: str) -> pd.DataFrame:
-        date_filter = datetime.strptime(date, "%Y-%m-%d") - timedelta(
+    def filter_dataframe_by_date(data: pd.DataFrame) -> pd.DataFrame:
+        date_filter = datetime.now() - timedelta(
             weeks=FILTER_PERIOD
-        )
+        ).strftime("%Y-%m-%d")
         return data[data["race_time"] > date_filter].copy()
 
-    async def get_todays_races(self, date: str):
-        data = await self.feedback_repository.get_todays_races(date)
+    async def get_todays_races(self):
+        data = await self.todays_repository.get_todays_races()
         return self.format_todays_races(data)
 
     async def get_race_by_id(self, date: str, race_id: int):
-        data = await self.feedback_repository.get_race_by_id(date, race_id)
-        data = data.pipe(FeedbackService.filter_dataframe_by_date, date).pipe(
+        todays_data = await self.todays_repository.get_race_by_id(date, race_id)
+        betfair_data = await self.betfair_service.get_current_market_data()
+        betfair_ids = await self.todays_repository.get_todays_betfair_ids()
+        data = self.curate_live_race_data(todays_data, betfair_data, betfair_ids)
+        data = data.pipe(TodaysService.filter_dataframe_by_date, date).pipe(
             self.transformation_service.calculate, date
         )
         data.pipe(
@@ -225,8 +237,8 @@ class FeedbackService(BaseService):
         return [race_data]
 
     async def get_race_graph_by_id(self, date: str, race_id: int):
-        data = await self.feedback_repository.get_race_graph_by_id(date, race_id)
-        data = data.pipe(FeedbackService.filter_dataframe_by_date, date).pipe(
+        data = await self.todays_repository.get_race_graph_by_id(date, race_id)
+        data = data.pipe(TodaysService.filter_dataframe_by_date, date).pipe(
             self.convert_integer_columns,
             [
                 "official_rating",
@@ -257,8 +269,8 @@ class FeedbackService(BaseService):
         return read_json("./src/cache/feedback_date.json")
 
 
-def get_feedback_service(
-    feedback_repository: FeedbackRepository = Depends(get_feedback_repository),
+def get_todays_service(
+    todays_repository: TodaysRepository = Depends(get_todays_repository),
 ):
     transformation_service = TransformationService()
-    return FeedbackService(feedback_repository, transformation_service)
+    return TodaysService(todays_repository, transformation_service)
