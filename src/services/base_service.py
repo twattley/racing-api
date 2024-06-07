@@ -47,3 +47,16 @@ class BaseService:
         for column in columns:
             data[column] = data[column].astype("Int64")
         return data
+    
+import math
+import numpy as np
+
+    def sanitize(data):
+        if isinstance(data, float):
+            if math.isinf(data) or math.isnan(data):
+                return None  # or a specific value you deem appropriate
+        elif isinstance(data, dict):
+            return {k: sanitize(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [sanitize(item) for item in data]
+        return data

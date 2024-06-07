@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from fastapi import Depends
 
-from .betfair_service import BetfairService
+from .betfair_service import BetfairService, get_betfair_service
 
 from ..repository.todays_repository import TodaysRepository, get_todays_repository
 from ..utils.json_utils import read_json, write_json
@@ -33,21 +33,31 @@ class TodaysService(BaseService):
 
     @staticmethod
     def filter_dataframe_by_date(data: pd.DataFrame) -> pd.DataFrame:
-        date_filter = datetime.now() - timedelta(
-            weeks=FILTER_PERIOD
+        date_filter = (
+            datetime.now() - timedelta(weeks=FILTER_PERIOD)
         ).strftime("%Y-%m-%d")
         return data[data["race_time"] > date_filter].copy()
+
+    async def get_market_ids(self, race_id: int):
+        d = read_json("./src/cache/market_ids.json")
+        return [
+            [i["market_id_win"], i["market_id_place"]]
+            for i in d
+            if i["race_id"] == race_id
+        ][0]
 
     async def get_todays_races(self):
         data = await self.todays_repository.get_todays_races()
         return self.format_todays_races(data)
 
     async def get_race_by_id(self, date: str, race_id: int):
+
+        market_ids = await self.get_market_ids(race_id)
+        betfair_data = await self.betfair_service.get_current_market_data(market_ids)
         todays_data = await self.todays_repository.get_race_by_id(date, race_id)
-        betfair_data = await self.betfair_service.get_current_market_data()
         betfair_ids = await self.todays_repository.get_todays_betfair_ids()
-        data = self.curate_live_race_data(todays_data, betfair_data, betfair_ids)
-        data = data.pipe(TodaysService.filter_dataframe_by_date, date).pipe(
+        data = TodaysService.curate_live_race_data(todays_data, betfair_data, betfair_ids)
+        data = data.pipe(TodaysService.filter_dataframe_by_date).pipe(
             self.transformation_service.calculate, date
         )
         data.pipe(
@@ -157,84 +167,60 @@ class TodaysService(BaseService):
             ],
         }
 
+        print(data)
+
         return data
 
-    async def get_race_result_by_id(self, date: str, race_id: int):
-        data = await self.feedback_repository.get_race_result_by_id(date, race_id)
-        data = data.pipe(self.transformation_service.amend_finishing_position)
-        data = data.pipe(
-            self.convert_string_columns,
-            [
-                "headgear",
-                "weight_carried",
-                "finishing_position",
-                "tf_comment",
-                "tfr_view",
-            ],
-        )
-        data = data.pipe(
-            self.convert_integer_columns,
-            [
-                "draw",
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-            ],
-        )
-        race_data = (
-            data[
-                [
+    @staticmethod
+    def curate_live_race_data(todays_data, betfair_data, betfair_ids):
+        win_and_place = (
+            pd.merge(
+                betfair_data[betfair_data["market"] == "WIN"],
+                betfair_data[betfair_data["market"] == "PLACE"],
+                on=["race_time", "course", "todays_bf_unique_id"],
+                suffixes=("_win", "_place"),
+            )
+            .rename(
+                columns={
+                    "horse_win": "horse_name",
+                    "last_traded_price_win": "betfair_win_sp",
+                    "last_traded_price_place": "betfair_place_sp",
+                    "status_win": "status",
+                    "market_id_win": "market_id_win",
+                    "market_id_place": "market_id_place",
+                }
+            )
+            .filter(
+                items=[
                     "race_time",
-                    "race_date",
-                    "race_title",
-                    "race_type",
-                    "race_class",
-                    "distance",
-                    "conditions",
-                    "going",
-                    "number_of_runners",
-                    "hcap_range",
-                    "age_range",
-                    "surface",
-                    "total_prize_money",
-                    "winning_time",
-                    "relative_time",
-                    "relative_to_standard",
-                    "main_race_comment",
-                    "course_id",
+                    "todays_bf_unique_id",
+                    "horse_name",
                     "course",
-                    "race_id",
+                    "betfair_win_sp",
+                    "betfair_place_sp",
+                    "status",
+                    "market_id_win",
+                    "market_id_place",
                 ]
-            ]
-            .drop_duplicates(subset=["race_id"])
-            .to_dict(orient="records")[0]
+            )
+            .sort_values(by="race_time", ascending=True)
+        ).merge(betfair_ids, on="todays_bf_unique_id", how="left")
+
+        win_sp = dict(zip(win_and_place["horse_id"], win_and_place["betfair_win_sp"]))
+        place_sp = dict(
+            zip(win_and_place["horse_id"], win_and_place["betfair_place_sp"])
         )
-        horse_data_list = data[
-            [
-                "horse_name",
-                "horse_id",
-                "age",
-                "draw",
-                "headgear",
-                "weight_carried",
-                "finishing_position",
-                "total_distance_beaten",
-                "betfair_win_sp",
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-                "in_play_high",
-                "in_play_low",
-                "tf_comment",
-                "tfr_view",
-            ]
-        ].to_dict(orient="records")
-        race_data["race_results"] = horse_data_list
-        return [race_data]
+
+        todays_data.loc[todays_data["data_type"] == "today", "betfair_win_sp"] = (
+            todays_data.loc[todays_data["data_type"] == "today", "horse_id"].map(win_sp)
+        )
+        todays_data.loc[todays_data["data_type"] == "today", "betfair_place_sp"] = (
+            todays_data.loc[todays_data["data_type"] == "today", "horse_id"].map(
+                place_sp
+            )
+        )
+
+        return todays_data
 
     async def get_race_graph_by_id(self, date: str, race_id: int):
         data = await self.todays_repository.get_race_graph_by_id(date, race_id)
@@ -261,16 +247,10 @@ class TodaysService(BaseService):
 
         return performance_data
 
-    async def get_current_date_today(self) -> list[dict]:
-        return read_json("./src/cache/feedback_date.json")
-
-    async def store_current_date_today(self, date: str):
-        write_json({"today_date": date}, "./src/cache/feedback_date.json")
-        return read_json("./src/cache/feedback_date.json")
-
 
 def get_todays_service(
     todays_repository: TodaysRepository = Depends(get_todays_repository),
 ):
     transformation_service = TransformationService()
-    return TodaysService(todays_repository, transformation_service)
+    betfair_service = get_betfair_service()
+    return TodaysService(todays_repository, transformation_service, betfair_service)

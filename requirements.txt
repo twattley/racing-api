@@ -9,4 +9,5 @@ python-jose
 python-multipart
 pandas
 pydantic_settings
-git+https://github.com/twattley/api-helpers@v0.0.6
+psycopg2-binary
+git+https://github.com/twattley/api-helpers@v0.0.7

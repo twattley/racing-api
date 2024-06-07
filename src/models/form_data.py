@@ -40,7 +40,7 @@ class TodaysHorseFormData(BaseEntity):
     race_time: datetime
     race_date: date
     race_title: str
-    race_type: str
+    race_type: Optional[str]
     race_class: Optional[int]
     distance: str
     distance_yards: float
@@ -94,7 +94,7 @@ class TodaysRaceFormData(BaseEntity):
     hcap_range: Optional[str]
     age_range: str
     conditions: str
-    race_type: str
+    race_type: Optional[str]
     race_title: str
     race_time: datetime
     race_date: date

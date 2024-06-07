@@ -40,15 +40,15 @@ def create_db_url(config: Config) -> str:
         + "+"
         + "asyncpg"
         + "://"
-    db_usernam: stre
+        + config.db_username
         + ":"
-    db_passwor: strd
+        + config.db_password
         + "@"
-    db_hos: strt
+        + config.db_host
         + ":"
-    db_por: strt
+        + config.db_port
         + "/"
-    db_nam: stre
+        + config.db_name
     )
 
 

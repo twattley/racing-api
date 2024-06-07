@@ -19,7 +19,15 @@ class TodaysRepository(BaseRepository):
         return pd.DataFrame(result.fetchall())
 
     async def get_todays_betfair_ids(self):
-        result = await self.session.execute(text("SELECT * FROM public.bf_horse"))
+        result = await self.session.execute(text(
+            """
+            SELECT 
+                id as horse_id, 
+                name as horse_name, 
+                bf_id as todays_bf_unique_id 
+            FROM public.bf_horse
+            """
+        ))
         return pd.DataFrame(result.fetchall())
 
 

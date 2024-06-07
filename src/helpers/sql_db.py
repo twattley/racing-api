@@ -3,10 +3,11 @@
 import json
 
 import pydantic.json
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.asyncio import create_async_engine
-from src.config import config
+from src.config import Config
 
-def get_engine(db_url):
+def get_engine(db_url, config: Config):
     return create_async_engine(
         db_url,
         json_serializer=lambda *args, **kwargs: json.dumps(
@@ -19,3 +20,10 @@ def get_engine(db_url):
             "timeout": config.db_conn_timeout,
         },
     )
+
+
+def create_sync_engine(config: Config) -> Engine:
+    return create_engine(
+            f"postgresql://{config.db_username}:{config.db_password}@{config.db_host}:{config.db_port}/{config.db_name}"
+        )
+

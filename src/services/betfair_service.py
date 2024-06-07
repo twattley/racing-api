@@ -13,8 +13,8 @@ class BetfairService:
     def __init__(self, trading_client: BetfairClient):
         self.trading_client = trading_client
 
-    async def get_current_market_data(self):
-        return await self.trading_client.create_market_data()
+    async def get_current_market_data(self, market_ids):
+        return self.trading_client.create_single_market_data(market_ids)
 
 
 def get_betfair_service():
