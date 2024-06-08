@@ -1,248 +1,542 @@
 [
     {
-        "race_time": "2024-06-07T13:38:00",
-        "race_id": 868018,
-        "market_id_win": "1.229665446",
-        "market_id_place": "1.229665447"
+        "race_time": "2024-06-08T13:30:00",
+        "race_id": 868029,
+        "market_id_win": "1.229685424",
+        "market_id_place": "1.229685426"
     },
     {
-        "race_time": "2024-06-07T13:48:00",
-        "race_id": 867868,
-        "market_id_win": "1.229665600",
-        "market_id_place": "1.229665601"
+        "race_time": "2024-06-08T13:40:00",
+        "race_id": 867873,
+        "market_id_win": "1.229685378",
+        "market_id_place": "1.229685379"
     },
     {
-        "race_time": "2024-06-07T14:00:00",
-        "race_id": 868010,
-        "market_id_win": "1.229665406",
-        "market_id_place": "1.229665408"
+        "race_time": "2024-06-08T13:50:00",
+        "race_id": 867993,
+        "market_id_win": "1.229685569",
+        "market_id_place": "1.229685571"
     },
     {
-        "race_time": "2024-06-07T14:08:00",
-        "race_id": 868019,
-        "market_id_win": "1.229665453",
-        "market_id_place": "1.229665455"
+        "race_time": "2024-06-08T14:05:00",
+        "race_id": 868025,
+        "market_id_win": "1.229685430",
+        "market_id_place": "1.229685431"
     },
     {
-        "race_time": "2024-06-07T14:18:00",
-        "race_id": 867864,
-        "market_id_win": "1.229665607",
-        "market_id_place": "1.229665608"
+        "race_time": "2024-06-08T14:10:00",
+        "race_id": 868036,
+        "market_id_win": "1.229685626",
+        "market_id_place": "1.229685627"
     },
     {
-        "race_time": "2024-06-07T14:30:00",
-        "race_id": 868006,
-        "market_id_win": "1.229665402",
-        "market_id_place": "1.229665404"
+        "race_time": "2024-06-08T14:15:00",
+        "race_id": 867871,
+        "market_id_win": "1.229685385",
+        "market_id_place": "1.229685387"
     },
     {
-        "race_time": "2024-06-07T14:38:00",
-        "race_id": 868023,
-        "market_id_win": "1.229665460",
-        "market_id_place": "1.229665461"
+        "race_time": "2024-06-08T14:25:00",
+        "race_id": 867994,
+        "market_id_win": "1.229685576",
+        "market_id_place": "1.229685578"
     },
     {
-        "race_time": "2024-06-07T14:48:00",
-        "race_id": 867866,
-        "market_id_win": "1.229665614",
-        "market_id_place": "1.229665616"
+        "race_time": "2024-06-08T14:40:00",
+        "race_id": 868024,
+        "market_id_win": "1.229685436",
+        "market_id_place": "1.229685438"
     },
     {
-        "race_time": "2024-06-07T15:00:00",
-        "race_id": 868009,
-        "market_id_win": "1.229665412",
-        "market_id_place": "1.229665414"
+        "race_time": "2024-06-08T14:45:00",
+        "race_id": 868035,
+        "market_id_win": "1.229685640",
+        "market_id_place": "1.229685641"
     },
     {
-        "race_time": "2024-06-07T15:08:00",
-        "race_id": 868020,
-        "market_id_win": "1.229665466",
-        "market_id_place": "1.229665468"
+        "race_time": "2024-06-08T14:50:00",
+        "race_id": 867870,
+        "market_id_win": "1.229685392",
+        "market_id_place": "1.229685394"
     },
     {
-        "race_time": "2024-06-07T15:18:00",
-        "race_id": 870609,
-        "market_id_win": "1.229665621",
-        "market_id_place": "1.229665623"
+        "race_time": "2024-06-08T15:00:00",
+        "race_id": 867991,
+        "market_id_win": "1.229685583",
+        "market_id_place": "1.229685584"
     },
     {
-        "race_time": "2024-06-07T15:30:00",
-        "race_id": 868008,
-        "market_id_win": "1.229665420",
-        "market_id_place": "1.229665422"
+        "race_time": "2024-06-08T15:15:00",
+        "race_id": 868026,
+        "market_id_win": "1.229685443",
+        "market_id_place": "1.229685445"
     },
     {
-        "race_time": "2024-06-07T15:38:00",
-        "race_id": 870610,
-        "market_id_win": "1.229665473",
-        "market_id_place": "1.229665475"
+        "race_time": "2024-06-08T15:20:00",
+        "race_id": 870637,
+        "market_id_win": "1.229685633",
+        "market_id_place": "1.229685634"
     },
     {
-        "race_time": "2024-06-07T15:48:00",
-        "race_id": 867863,
-        "market_id_win": "1.229665628",
-        "market_id_place": "1.229665629"
+        "race_time": "2024-06-08T15:25:00",
+        "race_id": 867869,
+        "market_id_win": "1.229685399",
+        "market_id_place": "1.229685401"
     },
     {
-        "race_time": "2024-06-07T16:00:00",
-        "race_id": 868007,
-        "market_id_win": "1.229665427",
-        "market_id_place": "1.229665429"
+        "race_time": "2024-06-08T15:35:00",
+        "race_id": 867992,
+        "market_id_win": "1.229685590",
+        "market_id_place": "1.229685591"
     },
     {
-        "race_time": "2024-06-07T16:08:00",
-        "race_id": 868021,
-        "market_id_win": "1.229665481",
-        "market_id_place": "1.229665482"
+        "race_time": "2024-06-08T15:50:00",
+        "race_id": 868027,
+        "market_id_win": "1.229685458",
+        "market_id_place": "1.229685460"
     },
     {
-        "race_time": "2024-06-07T16:20:00",
-        "race_id": 867865,
-        "market_id_win": "1.229665634",
-        "market_id_place": "1.229665636"
+        "race_time": "2024-06-08T15:55:00",
+        "race_id": 868037,
+        "market_id_win": "1.229685647",
+        "market_id_place": "1.229685648"
     },
     {
-        "race_time": "2024-06-07T16:30:00",
-        "race_id": 868005,
-        "market_id_win": "1.229665440",
-        "market_id_place": "1.229665442"
+        "race_time": "2024-06-08T16:00:00",
+        "race_id": 867872,
+        "market_id_win": "1.229685406",
+        "market_id_place": "1.229685408"
     },
     {
-        "race_time": "2024-06-07T16:40:00",
-        "race_id": 868022,
-        "market_id_win": "1.229665488",
-        "market_id_place": "1.229665489"
+        "race_time": "2024-06-08T16:10:00",
+        "race_id": 867997,
+        "market_id_win": "1.229685597",
+        "market_id_place": "1.229685598"
     },
     {
-        "race_time": "2024-06-07T16:50:00",
-        "race_id": 867867,
-        "market_id_win": "1.229665641",
-        "market_id_place": "1.229665642"
+        "race_time": "2024-06-08T16:25:00",
+        "race_id": 868028,
+        "market_id_win": "1.229685451",
+        "market_id_place": "1.229685453"
     },
     {
-        "race_time": "2024-06-07T17:05:00",
-        "race_id": 868011,
-        "market_id_win": "1.229665434",
-        "market_id_place": "1.229665436"
+        "race_time": "2024-06-08T16:30:00",
+        "race_id": 868032,
+        "market_id_win": "1.229685654",
+        "market_id_place": "1.229685655"
     },
     {
-        "race_time": "2024-06-07T17:28:00",
-        "race_id": 867988,
-        "market_id_win": "1.229665535",
-        "market_id_place": "1.229665536"
+        "race_time": "2024-06-08T16:35:00",
+        "race_id": 867875,
+        "market_id_win": "1.229685413",
+        "market_id_place": "1.229685414"
     },
     {
-        "race_time": "2024-06-07T17:45:00",
-        "race_id": 868004,
-        "market_id_win": "1.229665837",
-        "market_id_place": "1.229665838"
+        "race_time": "2024-06-08T16:45:00",
+        "race_id": 867995,
+        "market_id_win": "1.229685611",
+        "market_id_place": "1.229685613"
     },
     {
-        "race_time": "2024-06-07T17:58:00",
-        "race_id": 867986,
-        "market_id_win": "1.229665542",
-        "market_id_place": "1.229665544"
+        "race_time": "2024-06-08T17:00:00",
+        "race_id": 868030,
+        "market_id_win": "1.229685465",
+        "market_id_place": "1.229685466"
     },
     {
-        "race_time": "2024-06-07T18:05:00",
-        "race_id": 868015,
-        "market_id_win": "1.229665495",
-        "market_id_place": "1.229665496"
+        "race_time": "2024-06-08T17:05:00",
+        "race_id": 868031,
+        "market_id_win": "1.229685660",
+        "market_id_place": "1.229685662"
     },
     {
-        "race_time": "2024-06-07T18:15:00",
-        "race_id": 867998,
-        "market_id_win": "1.229665845",
-        "market_id_place": "1.229665846"
+        "race_time": "2024-06-08T17:10:00",
+        "race_id": 867874,
+        "market_id_win": "1.229685419",
+        "market_id_place": "1.229685420"
     },
     {
-        "race_time": "2024-06-07T18:28:00",
-        "race_id": 870611,
-        "market_id_win": "1.229665549",
-        "market_id_place": "1.229665551"
+        "race_time": "2024-06-08T17:20:00",
+        "race_id": 867996,
+        "market_id_win": "1.229685604",
+        "market_id_place": "1.229685606"
     },
     {
-        "race_time": "2024-06-07T18:35:00",
-        "race_id": 868012,
-        "market_id_win": "1.229665501",
-        "market_id_place": "1.229665502"
+        "race_time": "2024-06-08T17:25:00",
+        "race_id": 868043,
+        "market_id_win": "1.229685517",
+        "market_id_place": "1.229685518"
     },
     {
-        "race_time": "2024-06-07T18:45:00",
-        "race_id": 868000,
-        "market_id_win": "1.229665830",
-        "market_id_place": "1.229665832"
+        "race_time": "2024-06-08T17:40:00",
+        "race_id": 868034,
+        "market_id_win": "1.229685666",
+        "market_id_place": "1.229685667"
     },
     {
-        "race_time": "2024-06-07T18:58:00",
-        "race_id": 867989,
-        "market_id_win": "1.229665556",
-        "market_id_place": "1.229665558"
+        "race_time": "2024-06-08T17:45:00",
+        "race_id": 868049,
+        "market_id_win": "1.229685470",
+        "market_id_place": "1.229685471"
     },
     {
-        "race_time": "2024-06-07T19:05:00",
-        "race_id": 868016,
-        "market_id_win": "1.229665508",
-        "market_id_place": "1.229665510"
+        "race_time": "2024-06-08T17:52:00",
+        "race_id": 870635,
+        "market_id_win": "1.229685620",
+        "market_id_place": "1.229685622"
     },
     {
-        "race_time": "2024-06-07T19:15:00",
-        "race_id": 867999,
-        "market_id_win": "1.229665859",
-        "market_id_place": "1.229665860"
+        "race_time": "2024-06-08T18:00:00",
+        "race_id": 868040,
+        "market_id_win": "1.229685524",
+        "market_id_place": "1.229685526"
     },
     {
-        "race_time": "2024-06-07T19:28:00",
-        "race_id": 867985,
-        "market_id_win": "1.229665565",
-        "market_id_place": "1.229665567"
+        "race_time": "2024-06-08T18:10:00",
+        "race_id": 868033,
+        "market_id_win": "1.229685673",
+        "market_id_place": "1.229685675"
     },
     {
-        "race_time": "2024-06-07T19:35:00",
-        "race_id": 868017,
-        "market_id_win": "1.229665515",
-        "market_id_place": "1.229665516"
+        "race_time": "2024-06-08T18:15:00",
+        "race_id": 868046,
+        "market_id_win": "1.229685476",
+        "market_id_place": "1.229685478"
     },
     {
-        "race_time": "2024-06-07T19:50:00",
-        "race_id": 868001,
-        "market_id_win": "1.229665852",
-        "market_id_place": "1.229665854"
+        "race_time": "2024-06-08T18:30:00",
+        "race_id": 868039,
+        "market_id_win": "1.229685530",
+        "market_id_place": "1.229685532"
     },
     {
-        "race_time": "2024-06-07T20:03:00",
-        "race_id": 867987,
-        "market_id_win": "1.229665573",
-        "market_id_place": "1.229665575"
+        "race_time": "2024-06-08T18:45:00",
+        "race_id": 868045,
+        "market_id_win": "1.229685483",
+        "market_id_place": "1.229685485"
     },
     {
-        "race_time": "2024-06-07T20:10:00",
-        "race_id": 868014,
-        "market_id_win": "1.229665521",
-        "market_id_place": "1.229665523"
+        "race_time": "2024-06-08T19:00:00",
+        "race_id": 868038,
+        "market_id_win": "1.229685536",
+        "market_id_place": "1.229685537"
     },
     {
-        "race_time": "2024-06-07T20:25:00",
-        "race_id": 868002,
-        "market_id_win": "1.229665865",
-        "market_id_place": "1.229665866"
+        "race_time": "2024-06-08T19:15:00",
+        "race_id": 868048,
+        "market_id_win": "1.229685490",
+        "market_id_place": "1.229685492"
     },
     {
-        "race_time": "2024-06-07T20:38:00",
-        "race_id": 867990,
-        "market_id_win": "1.229665580",
-        "market_id_place": "1.229665582"
+        "race_time": "2024-06-08T19:30:00",
+        "race_id": 868042,
+        "market_id_win": "1.229685542",
+        "market_id_place": "1.229685544"
     },
     {
-        "race_time": "2024-06-07T20:45:00",
-        "race_id": 868013,
-        "market_id_win": "1.229665527",
-        "market_id_place": "1.229665528"
+        "race_time": "2024-06-08T19:45:00",
+        "race_id": 868047,
+        "market_id_win": "1.229685496",
+        "market_id_place": "1.229685498"
     },
     {
-        "race_time": "2024-06-07T21:00:00",
-        "race_id": 868003,
-        "market_id_win": "1.229665871",
-        "market_id_place": "1.229665873"
+        "race_time": "2024-06-08T20:00:00",
+        "race_id": 868041,
+        "market_id_win": "1.229685549",
+        "market_id_place": "1.229685551"
+    },
+    {
+        "race_time": "2024-06-08T20:15:00",
+        "race_id": 868050,
+        "market_id_win": "1.229685502",
+        "market_id_place": "1.229685504"
+    },
+    {
+        "race_time": "2024-06-08T20:30:00",
+        "race_id": 870636,
+        "market_id_win": "1.229685556",
+        "market_id_place": "1.229685558"
+    },
+    {
+        "race_time": "2024-06-08T20:45:00",
+        "race_id": 868051,
+        "market_id_win": "1.229685511",
+        "market_id_place": "1.229685513"
+    },
+    {
+        "race_time": "2024-06-08T21:00:00",
+        "race_id": 868044,
+        "market_id_win": "1.229685562",
+        "market_id_place": "1.229685564"
+    },
+    {
+        "race_time": "2024-06-08T13:30:00",
+        "race_id": 868029,
+        "market_id_win": "1.229685424",
+        "market_id_place": "1.229685426"
+    },
+    {
+        "race_time": "2024-06-08T13:40:00",
+        "race_id": 867873,
+        "market_id_win": "1.229685378",
+        "market_id_place": "1.229685379"
+    },
+    {
+        "race_time": "2024-06-08T13:50:00",
+        "race_id": 867993,
+        "market_id_win": "1.229685569",
+        "market_id_place": "1.229685571"
+    },
+    {
+        "race_time": "2024-06-08T14:05:00",
+        "race_id": 868025,
+        "market_id_win": "1.229685430",
+        "market_id_place": "1.229685431"
+    },
+    {
+        "race_time": "2024-06-08T14:10:00",
+        "race_id": 868036,
+        "market_id_win": "1.229685626",
+        "market_id_place": "1.229685627"
+    },
+    {
+        "race_time": "2024-06-08T14:15:00",
+        "race_id": 867871,
+        "market_id_win": "1.229685385",
+        "market_id_place": "1.229685387"
+    },
+    {
+        "race_time": "2024-06-08T14:25:00",
+        "race_id": 867994,
+        "market_id_win": "1.229685576",
+        "market_id_place": "1.229685578"
+    },
+    {
+        "race_time": "2024-06-08T14:40:00",
+        "race_id": 868024,
+        "market_id_win": "1.229685436",
+        "market_id_place": "1.229685438"
+    },
+    {
+        "race_time": "2024-06-08T14:45:00",
+        "race_id": 868035,
+        "market_id_win": "1.229685640",
+        "market_id_place": "1.229685641"
+    },
+    {
+        "race_time": "2024-06-08T14:50:00",
+        "race_id": 867870,
+        "market_id_win": "1.229685392",
+        "market_id_place": "1.229685394"
+    },
+    {
+        "race_time": "2024-06-08T15:00:00",
+        "race_id": 867991,
+        "market_id_win": "1.229685583",
+        "market_id_place": "1.229685584"
+    },
+    {
+        "race_time": "2024-06-08T15:15:00",
+        "race_id": 868026,
+        "market_id_win": "1.229685443",
+        "market_id_place": "1.229685445"
+    },
+    {
+        "race_time": "2024-06-08T15:20:00",
+        "race_id": 870637,
+        "market_id_win": "1.229685633",
+        "market_id_place": "1.229685634"
+    },
+    {
+        "race_time": "2024-06-08T15:25:00",
+        "race_id": 867869,
+        "market_id_win": "1.229685399",
+        "market_id_place": "1.229685401"
+    },
+    {
+        "race_time": "2024-06-08T15:35:00",
+        "race_id": 867992,
+        "market_id_win": "1.229685590",
+        "market_id_place": "1.229685591"
+    },
+    {
+        "race_time": "2024-06-08T15:50:00",
+        "race_id": 868027,
+        "market_id_win": "1.229685458",
+        "market_id_place": "1.229685460"
+    },
+    {
+        "race_time": "2024-06-08T15:55:00",
+        "race_id": 868037,
+        "market_id_win": "1.229685647",
+        "market_id_place": "1.229685648"
+    },
+    {
+        "race_time": "2024-06-08T16:00:00",
+        "race_id": 867872,
+        "market_id_win": "1.229685406",
+        "market_id_place": "1.229685408"
+    },
+    {
+        "race_time": "2024-06-08T16:10:00",
+        "race_id": 867997,
+        "market_id_win": "1.229685597",
+        "market_id_place": "1.229685598"
+    },
+    {
+        "race_time": "2024-06-08T16:25:00",
+        "race_id": 868028,
+        "market_id_win": "1.229685451",
+        "market_id_place": "1.229685453"
+    },
+    {
+        "race_time": "2024-06-08T16:30:00",
+        "race_id": 868032,
+        "market_id_win": "1.229685654",
+        "market_id_place": "1.229685655"
+    },
+    {
+        "race_time": "2024-06-08T16:35:00",
+        "race_id": 867875,
+        "market_id_win": "1.229685413",
+        "market_id_place": "1.229685414"
+    },
+    {
+        "race_time": "2024-06-08T16:45:00",
+        "race_id": 867995,
+        "market_id_win": "1.229685611",
+        "market_id_place": "1.229685613"
+    },
+    {
+        "race_time": "2024-06-08T17:00:00",
+        "race_id": 868030,
+        "market_id_win": "1.229685465",
+        "market_id_place": "1.229685466"
+    },
+    {
+        "race_time": "2024-06-08T17:05:00",
+        "race_id": 868031,
+        "market_id_win": "1.229685660",
+        "market_id_place": "1.229685662"
+    },
+    {
+        "race_time": "2024-06-08T17:10:00",
+        "race_id": 867874,
+        "market_id_win": "1.229685419",
+        "market_id_place": "1.229685420"
+    },
+    {
+        "race_time": "2024-06-08T17:20:00",
+        "race_id": 867996,
+        "market_id_win": "1.229685604",
+        "market_id_place": "1.229685606"
+    },
+    {
+        "race_time": "2024-06-08T17:25:00",
+        "race_id": 868043,
+        "market_id_win": "1.229685517",
+        "market_id_place": "1.229685518"
+    },
+    {
+        "race_time": "2024-06-08T17:40:00",
+        "race_id": 868034,
+        "market_id_win": "1.229685666",
+        "market_id_place": "1.229685667"
+    },
+    {
+        "race_time": "2024-06-08T17:45:00",
+        "race_id": 868049,
+        "market_id_win": "1.229685470",
+        "market_id_place": "1.229685471"
+    },
+    {
+        "race_time": "2024-06-08T17:52:00",
+        "race_id": 870635,
+        "market_id_win": "1.229685620",
+        "market_id_place": "1.229685622"
+    },
+    {
+        "race_time": "2024-06-08T18:00:00",
+        "race_id": 868040,
+        "market_id_win": "1.229685524",
+        "market_id_place": "1.229685526"
+    },
+    {
+        "race_time": "2024-06-08T18:10:00",
+        "race_id": 868033,
+        "market_id_win": "1.229685673",
+        "market_id_place": "1.229685675"
+    },
+    {
+        "race_time": "2024-06-08T18:15:00",
+        "race_id": 868046,
+        "market_id_win": "1.229685476",
+        "market_id_place": "1.229685478"
+    },
+    {
+        "race_time": "2024-06-08T18:30:00",
+        "race_id": 868039,
+        "market_id_win": "1.229685530",
+        "market_id_place": "1.229685532"
+    },
+    {
+        "race_time": "2024-06-08T18:45:00",
+        "race_id": 868045,
+        "market_id_win": "1.229685483",
+        "market_id_place": "1.229685485"
+    },
+    {
+        "race_time": "2024-06-08T19:00:00",
+        "race_id": 868038,
+        "market_id_win": "1.229685536",
+        "market_id_place": "1.229685537"
+    },
+    {
+        "race_time": "2024-06-08T19:15:00",
+        "race_id": 868048,
+        "market_id_win": "1.229685490",
+        "market_id_place": "1.229685492"
+    },
+    {
+        "race_time": "2024-06-08T19:30:00",
+        "race_id": 868042,
+        "market_id_win": "1.229685542",
+        "market_id_place": "1.229685544"
+    },
+    {
+        "race_time": "2024-06-08T19:45:00",
+        "race_id": 868047,
+        "market_id_win": "1.229685496",
+        "market_id_place": "1.229685498"
+    },
+    {
+        "race_time": "2024-06-08T20:00:00",
+        "race_id": 868041,
+        "market_id_win": "1.229685549",
+        "market_id_place": "1.229685551"
+    },
+    {
+        "race_time": "2024-06-08T20:15:00",
+        "race_id": 868050,
+        "market_id_win": "1.229685502",
+        "market_id_place": "1.229685504"
+    },
+    {
+        "race_time": "2024-06-08T20:30:00",
+        "race_id": 870636,
+        "market_id_win": "1.229685556",
+        "market_id_place": "1.229685558"
+    },
+    {
+        "race_time": "2024-06-08T20:45:00",
+        "race_id": 868051,
+        "market_id_win": "1.229685511",
+        "market_id_place": "1.229685513"
+    },
+    {
+        "race_time": "2024-06-08T21:00:00",
+        "race_id": 868044,
+        "market_id_win": "1.229685562",
+        "market_id_place": "1.229685564"
     }
 ]

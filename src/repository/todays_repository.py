@@ -14,7 +14,7 @@ class TodaysRepository(BaseRepository):
     async def get_todays_races(self):
         result = await self.session.execute(
             text("SELECT * from public.select_race_date_race_times(:date)"),
-            {"date": datetime.now().strftime("%Y-%m-%d")},
+            {"date": datetime.now().date()},
         )
         return pd.DataFrame(result.fetchall())
 

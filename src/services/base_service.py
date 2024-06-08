@@ -1,3 +1,6 @@
+import math
+from typing import Callable
+import numpy as np
 import pandas as pd
 
 
@@ -47,16 +50,130 @@ class BaseService:
         for column in columns:
             data[column] = data[column].astype("Int64")
         return data
-    
-import math
-import numpy as np
 
-    def sanitize(data):
-        if isinstance(data, float):
-            if math.isinf(data) or math.isnan(data):
-                return None  # or a specific value you deem appropriate
-        elif isinstance(data, dict):
-            return {k: sanitize(v) for k, v in data.items()}
+    def format_todays_form_data(
+        self,
+        data: pd.DataFrame,
+        date: str,
+        filter_function: Callable,
+        transformation_function: Callable,
+    ) -> list[dict]:
+        data = data.pipe(filter_function).pipe(transformation_function, date)
+        data.pipe(
+            self.convert_string_columns,
+            [
+                "headgear",
+                "finishing_position",
+                "industry_sp",
+                "in_race_comment",
+                "tf_comment",
+                "tfr_view",
+                "conditions",
+                "going",
+                "hcap_range",
+                "age_range",
+                "surface",
+                "winning_time",
+                "relative_to_standard",
+                "country",
+                "main_race_comment",
+            ],
+        )
+        data.pipe(
+            self.convert_integer_columns,
+            [
+                "draw",
+                "days_since_last_ran",
+                "days_since_performance",
+                "extra_weight",
+                "jockey_claim",
+                "official_rating",
+                "ts",
+                "rpr",
+                "tfr",
+                "tfig",
+                "race_class",
+                "number_of_runners",
+                "total_prize_money",
+                "first_place_prize_money",
+            ],
+        )
+        data = data.assign(headgear=data["headgear"].replace("None", None))
+
+        today = data[data["data_type"] == "today"]
+        historical = data[data["data_type"] == "historical"]
+
+        race_details = today.drop_duplicates(subset=["unique_id"]).to_dict(
+            orient="records"
+        )[0]
+
+        today = today.rename(
+            columns={
+                "betfair_win_sp": "todays_betfair_win_sp",
+                "betfair_place_sp": "todays_betfair_place_sp",
+            }
+        )
+
+        historical = historical.merge(
+            today[["horse_id", "todays_betfair_win_sp", "todays_betfair_place_sp"]],
+            on="horse_id",
+        )
+        historical = historical.sort_values(
+            by=["horse_id", "race_date"], ascending=[True, False]
+        )
+
+        grouped = historical.groupby(["horse_id", "horse_name"])
+
+        data = {
+            "race_id": race_details["race_id"],
+            "course": race_details["course"],
+            "distance": race_details["distance"],
+            "going": race_details["going"],
+            "surface": race_details["surface"],
+            "race_class": race_details["race_class"],
+            "hcap_range": race_details["hcap_range"],
+            "age_range": race_details["age_range"],
+            "conditions": race_details["conditions"],
+            "race_type": race_details["race_type"],
+            "race_title": race_details["race_title"],
+            "race_time": race_details["race_time"],
+            "race_date": race_details["race_date"],
+            "horse_data": [
+                {
+                    "horse_name": name,
+                    "horse_id": horse_id,
+                    "first_places": group["first_places"].iloc[0],
+                    "second_places": group["second_places"].iloc[0],
+                    "third_places": group["third_places"].iloc[0],
+                    "fourth_places": group["fourth_places"].iloc[0],
+                    "number_of_runs": group["number_of_runs"].iloc[0],
+                    "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
+                    "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
+                    "performance_data": group.drop(
+                        columns=[
+                            "horse_id",
+                            "horse_name",
+                            "first_places",
+                            "second_places",
+                            "third_places",
+                            "fourth_places",
+                            "todays_betfair_win_sp",
+                            "todays_betfair_place_sp",
+                        ]
+                    ).to_dict(orient="records"),
+                }
+                for (horse_id, name), group in grouped
+            ],
+        }
+
+        return self.sanitize_nan(data)
+
+    def sanitize_nan(self, data):
+        """Replace NaN values with None in nested structures."""
+        if isinstance(data, dict):
+            return {k: self.sanitize_nan(v) for k, v in data.items()}
         elif isinstance(data, list):
-            return [sanitize(item) for item in data]
+            return [self.sanitize_nan(item) for item in data]
+        elif isinstance(data, float) and np.isnan(data):
+            return None
         return data
