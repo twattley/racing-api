@@ -71,9 +71,9 @@ class TodaysService(BaseService):
     async def get_race_by_id(self, race_id: int):
         date = datetime.now().strftime("%Y-%m-%d")
         market_ids = await self.get_market_ids(race_id)
-        betfair_data = await self.betfair_service.create_single_market_data(market_ids)
         todays_data = await self.todays_repository.get_race_by_id(date, race_id)
         betfair_ids = await self.todays_repository.get_todays_betfair_ids()
+        betfair_data = self.betfair_service.create_single_market_data(market_ids)
         data = TodaysService.curate_live_race_data(
             todays_data, betfair_data, betfair_ids
         )
@@ -119,6 +119,8 @@ class TodaysService(BaseService):
             .sort_values(by="race_time", ascending=True)
         ).merge(betfair_ids, on="todays_bf_unique_id", how="left")
 
+        runners = win_and_place[win_and_place['status'] == 'ACTIVE']['horse_id'].unique()
+
         win_sp = dict(zip(win_and_place["horse_id"], win_and_place["betfair_win_sp"]))
         place_sp = dict(
             zip(win_and_place["horse_id"], win_and_place["betfair_place_sp"])
@@ -133,12 +135,12 @@ class TodaysService(BaseService):
             )
         )
 
-        return todays_data
+        return todays_data[todays_data['horse_id'].isin(runners)]
 
     async def get_race_graph_by_id(self, race_id: int):
         date = datetime.now().strftime("%Y-%m-%d")
         data = await self.todays_repository.get_race_graph_by_id(date, race_id)
-        data = data.pipe(TodaysService.filter_dataframe_by_date, date).pipe(
+        data = data.pipe(TodaysService.filter_dataframe_by_date).pipe(
             self.convert_integer_columns,
             [
                 "official_rating",
