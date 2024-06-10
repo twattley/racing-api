@@ -23,10 +23,7 @@ class FeedbackService(BaseService):
         self.transformation_service = transformation_service
 
     @staticmethod
-    def filter_dataframe_by_date(data: pd.DataFrame, date: str) -> pd.DataFrame:
-        date_filter = datetime.strptime(date, "%Y-%m-%d") - timedelta(
-            weeks=FILTER_PERIOD
-        )
+    def filter_dataframe_by_date(data: pd.DataFrame, date_filter: str) -> pd.DataFrame:
         return data[data["race_time"] > date_filter].copy()
 
     async def get_todays_races(self, date: str):
@@ -34,119 +31,17 @@ class FeedbackService(BaseService):
         return self.format_todays_races(data)
 
     async def get_race_by_id(self, date: str, race_id: int):
+        date_filter = (datetime.strptime(date, "%Y-%m-%d") - timedelta(
+            weeks=FILTER_PERIOD
+        )).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_by_id(date, race_id)
-        data = data.pipe(FeedbackService.filter_dataframe_by_date, date).pipe(
-            self.transformation_service.calculate, date
+        return self.format_todays_form_data(
+            data,
+            date,
+            date_filter,
+            FeedbackService.filter_dataframe_by_date,
+            self.transformation_service.calculate,
         )
-        data.pipe(
-            self.convert_string_columns,
-            [
-                "headgear",
-                "finishing_position",
-                "industry_sp",
-                "in_race_comment",
-                "tf_comment",
-                "tfr_view",
-                "conditions",
-                "going",
-                "hcap_range",
-                "age_range",
-                "surface",
-                "winning_time",
-                "relative_to_standard",
-                "country",
-                "main_race_comment",
-            ],
-        )
-        data.pipe(
-            self.convert_integer_columns,
-            [
-                "draw",
-                "days_since_last_ran",
-                "days_since_performance",
-                "extra_weight",
-                "jockey_claim",
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-                "race_class",
-                "number_of_runners",
-                "total_prize_money",
-                "first_place_prize_money",
-            ],
-        )
-        data = data.assign(headgear=data["headgear"].replace("None", None))
-
-        today = data[data["data_type"] == "today"]
-        historical = data[data["data_type"] == "historical"]
-
-        race_details = today.drop_duplicates(subset=["unique_id"]).to_dict(
-            orient="records"
-        )[0]
-
-        today = today.rename(
-            columns={
-                "betfair_win_sp": "todays_betfair_win_sp",
-                "betfair_place_sp": "todays_betfair_place_sp",
-            }
-        )
-
-        historical = historical.merge(
-            today[["horse_id", "todays_betfair_win_sp", "todays_betfair_place_sp"]],
-            on="horse_id",
-        )
-        historical = historical.sort_values(
-            by=["horse_id", "race_date"], ascending=[True, False]
-        )
-
-        grouped = historical.groupby(["horse_id", "horse_name"])
-
-        data = {
-            "race_id": race_details["race_id"],
-            "course": race_details["course"],
-            "distance": race_details["distance"],
-            "going": race_details["going"],
-            "surface": race_details["surface"],
-            "race_class": race_details["race_class"],
-            "hcap_range": race_details["hcap_range"],
-            "age_range": race_details["age_range"],
-            "conditions": race_details["conditions"],
-            "race_type": race_details["race_type"],
-            "race_title": race_details["race_title"],
-            "race_time": race_details["race_time"],
-            "race_date": race_details["race_date"],
-            "horse_data": [
-                {
-                    "horse_name": name,
-                    "horse_id": horse_id,
-                    "first_places": group["first_places"].iloc[0],
-                    "second_places": group["second_places"].iloc[0],
-                    "third_places": group["third_places"].iloc[0],
-                    "fourth_places": group["fourth_places"].iloc[0],
-                    "number_of_runs": group["number_of_runs"].iloc[0],
-                    "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
-                    "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
-                    "performance_data": group.drop(
-                        columns=[
-                            "horse_id",
-                            "horse_name",
-                            "first_places",
-                            "second_places",
-                            "third_places",
-                            "fourth_places",
-                            "todays_betfair_win_sp",
-                            "todays_betfair_place_sp",
-                        ]
-                    ).to_dict(orient="records"),
-                }
-                for (horse_id, name), group in grouped
-            ],
-        }
-
-        return data
-
     async def get_race_result_by_id(self, date: str, race_id: int):
         data = await self.feedback_repository.get_race_result_by_id(date, race_id)
         data = data.pipe(self.transformation_service.amend_finishing_position)

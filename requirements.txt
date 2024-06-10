@@ -10,4 +10,4 @@ python-multipart
 pandas
 pydantic_settings
 psycopg2-binary
-git+https://github.com/twattley/api-helpers@v0.0.7
+git+https://github.com/twattley/api-helpers@v0.1.1

@@ -55,10 +55,11 @@ class BaseService:
         self,
         data: pd.DataFrame,
         date: str,
+        date_filter: str,
         filter_function: Callable,
         transformation_function: Callable,
     ) -> list[dict]:
-        data = data.pipe(filter_function).pipe(transformation_function, date)
+        data = data.pipe(filter_function, date_filter).pipe(transformation_function, date)
         data.pipe(
             self.convert_string_columns,
             [
@@ -142,6 +143,7 @@ class BaseService:
                 {
                     "horse_name": name,
                     "horse_id": horse_id,
+                    "horse_age": group["age"].iloc[0],
                     "first_places": group["first_places"].iloc[0],
                     "second_places": group["second_places"].iloc[0],
                     "third_places": group["third_places"].iloc[0],

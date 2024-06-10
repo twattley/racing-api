@@ -74,6 +74,7 @@ class TodaysHorseFormData(BaseEntity):
 class TodaysPerformanceDataResponse(BaseEntity):
     horse_name: str
     horse_id: int
+    horse_age: int
     first_places: Optional[int]
     second_places: Optional[int]
     third_places: Optional[int]

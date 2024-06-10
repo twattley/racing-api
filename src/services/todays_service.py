@@ -50,25 +50,24 @@ class TodaysService(BaseService):
         self.betfair_service = betfair_service
 
     @staticmethod
-    def filter_dataframe_by_date(data: pd.DataFrame) -> pd.DataFrame:
-        date_filter = (datetime.now() - timedelta(weeks=FILTER_PERIOD)).strftime(
-            "%Y-%m-%d"
-        )
+    def filter_dataframe_by_date(data: pd.DataFrame, date_filter: str) -> pd.DataFrame:
         return data[data["race_time"] > date_filter].copy()
 
     async def get_market_ids(self, race_id: int):
         d = read_json("./src/cache/market_ids.json")
-        return [
-            [i["market_id_win"], i["market_id_place"]]
-            for i in d
-            if i["race_id"] == race_id
-        ][0]
+        for i in d:
+            if i['race_id'] == race_id:
+                return [i["market_id_win"], i["market_id_place"]]
+        raise ValueError(f"No market ids found for race id {race_id}")
 
     async def get_todays_races(self):
         data = await self.todays_repository.get_todays_races()
         return self.format_todays_races(data[data["race_time"] >= datetime.now()])
 
     async def get_race_by_id(self, race_id: int):
+        date_filter = (datetime.now() - timedelta(weeks=FILTER_PERIOD)).strftime(
+            "%Y-%m-%d"
+        )
         date = datetime.now().strftime("%Y-%m-%d")
         market_ids = await self.get_market_ids(race_id)
         todays_data = await self.todays_repository.get_race_by_id(date, race_id)
@@ -80,6 +79,7 @@ class TodaysService(BaseService):
         return self.format_todays_form_data(
             data,
             date,
+            date_filter,
             TodaysService.filter_dataframe_by_date,
             self.transformation_service.calculate,
         )
