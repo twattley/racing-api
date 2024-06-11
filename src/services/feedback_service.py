@@ -120,29 +120,15 @@ class FeedbackService(BaseService):
         return [race_data]
 
     async def get_race_graph_by_id(self, date: str, race_id: int):
+        date_filter = (datetime.strptime(date, "%Y-%m-%d") - timedelta(
+            weeks=FILTER_PERIOD
+        )).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_graph_by_id(date, race_id)
-        data = data.pipe(FeedbackService.filter_dataframe_by_date, date).pipe(
-            self.convert_integer_columns,
-            [
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-            ],
+        return self.format_todays_graph_data(
+            data,
+            date_filter,
+            FeedbackService.filter_dataframe_by_date,
         )
-        performance_data = []
-        for horse in data["horse_name"].unique():
-            horse_data = data[data["horse_name"] == horse]
-            performance_data.append(
-                {
-                    "horse_name": horse_data["horse_name"].iloc[0],
-                    "horse_id": horse_data["horse_id"].iloc[0],
-                    "performance_data": horse_data.to_dict(orient="records"),
-                }
-            )
-
-        return performance_data
 
     async def get_current_date_today(self) -> list[dict]:
         return read_json("./src/cache/feedback_date.json")

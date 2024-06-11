@@ -169,6 +169,31 @@ class BaseService:
         }
 
         return self.sanitize_nan(data)
+    
+    def format_todays_graph_data(self, data: pd.DataFrame, date_filter: str, filter_function: Callable) -> list[dict]:
+        data = data.pipe(filter_function, date_filter).pipe(
+            self.convert_integer_columns,
+            [
+                "official_rating",
+                "ts",
+                "rpr",
+                "tfr",
+                "tfig",
+            ], 
+        )
+        performance_data = []
+        for horse in data["horse_name"].unique():
+            horse_data = data[data["horse_name"] == horse]
+            performance_data.append(
+                {
+                    "horse_name": horse_data["horse_name"].iloc[0],
+                    "horse_id": horse_data["horse_id"].iloc[0],
+                    "performance_data": horse_data.to_dict(orient="records"),
+                }
+            )
+
+        return performance_data
+
 
     def sanitize_nan(self, data):
         """Replace NaN values with None in nested structures."""

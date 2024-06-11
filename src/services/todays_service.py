@@ -138,31 +138,17 @@ class TodaysService(BaseService):
         return todays_data[todays_data['horse_id'].isin(runners)]
 
     async def get_race_graph_by_id(self, race_id: int):
+        date_filter = (datetime.now() - timedelta(weeks=FILTER_PERIOD)).strftime(
+            "%Y-%m-%d"
+        )
         date = datetime.now().strftime("%Y-%m-%d")
         data = await self.todays_repository.get_race_graph_by_id(date, race_id)
-        data = data.pipe(TodaysService.filter_dataframe_by_date).pipe(
-            self.convert_integer_columns,
-            [
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-            ],
+        return self.format_todays_graph_data(
+            data,
+            date_filter,
+            TodaysService.filter_dataframe_by_date,
         )
-        performance_data = []
-        for horse in data["horse_name"].unique():
-            horse_data = data[data["horse_name"] == horse]
-            performance_data.append(
-                {
-                    "horse_name": horse_data["horse_name"].iloc[0],
-                    "horse_id": horse_data["horse_id"].iloc[0],
-                    "performance_data": horse_data.to_dict(orient="records"),
-                }
-            )
-
-        return performance_data
-
+        
 
 def get_todays_service(
     todays_repository: TodaysRepository = Depends(get_todays_repository),
