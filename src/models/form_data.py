@@ -74,7 +74,7 @@ class TodaysHorseFormData(BaseEntity):
 class TodaysPerformanceDataResponse(BaseEntity):
     horse_name: str
     horse_id: int
-    horse_age: int
+    todays_horse_age: int
     first_places: Optional[int]
     second_places: Optional[int]
     third_places: Optional[int]
@@ -82,6 +82,8 @@ class TodaysPerformanceDataResponse(BaseEntity):
     number_of_runs: Optional[int]
     todays_betfair_win_sp: Optional[float]
     todays_betfair_place_sp: Optional[float]
+    todays_official_rating: Optional[int]
+    todays_days_since_last_ran: Optional[int]
     performance_data: List[TodaysHorseFormData]
 
 

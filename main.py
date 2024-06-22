@@ -50,7 +50,6 @@ def create_app() -> FastAPI:
 
 async def main(init_cache):
     if init_cache == '--init-cache':
-        print('Initializing cache')
         construct_cache_data()
     return create_app()
 

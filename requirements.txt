@@ -10,4 +10,5 @@ python-multipart
 pandas
 pydantic_settings
 psycopg2-binary
+greenlet
 git+https://github.com/twattley/api-helpers@v0.1.1

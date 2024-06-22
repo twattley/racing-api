@@ -112,11 +112,22 @@ class BaseService:
             columns={
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
+                'official_rating': 'todays_official_rating',
+                'age': 'todays_horse_age',
+                'days_since_last_ran': 'todays_days_since_last_ran',
             }
         )
+        print(today.columns)
 
         historical = historical.merge(
-            today[["horse_id", "todays_betfair_win_sp", "todays_betfair_place_sp"]],
+            today[[
+                "horse_id", 
+                "todays_betfair_win_sp", 
+                "todays_betfair_place_sp", 
+                'todays_official_rating', 
+                'todays_horse_age',
+                "todays_days_since_last_ran"
+                ]],
             on="horse_id",
         )
         historical = historical.sort_values(
@@ -143,7 +154,7 @@ class BaseService:
                 {
                     "horse_name": name,
                     "horse_id": horse_id,
-                    "horse_age": group["age"].iloc[0],
+                    "todays_horse_age": group["todays_horse_age"].iloc[0],
                     "first_places": group["first_places"].iloc[0],
                     "second_places": group["second_places"].iloc[0],
                     "third_places": group["third_places"].iloc[0],
@@ -151,6 +162,8 @@ class BaseService:
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
+                    "todays_official_rating": group["todays_official_rating"].iloc[0],
+                    "todays_days_since_last_ran": group["todays_days_since_last_ran"].iloc[0],
                     "performance_data": group.drop(
                         columns=[
                             "horse_id",
