@@ -1,8 +1,10 @@
 from datetime import datetime
-from fastapi import Depends
+
 import pandas as pd
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..helpers.session_manager import get_current_session
 from .base_repository import BaseRepository
 
@@ -19,15 +21,17 @@ class TodaysRepository(BaseRepository):
         return pd.DataFrame(result.fetchall())
 
     async def get_todays_betfair_ids(self):
-        result = await self.session.execute(text(
-            """
+        result = await self.session.execute(
+            text(
+                """
             SELECT 
                 id as horse_id, 
                 name as horse_name, 
                 bf_id as todays_bf_unique_id 
             FROM public.bf_horse
             """
-        ))
+            )
+        )
         return pd.DataFrame(result.fetchall())
 
 

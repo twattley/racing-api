@@ -10,7 +10,6 @@ from ..repository.base_repository import BaseRepository
 
 
 class FeedbackRepository(BaseRepository):
-
     def __init__(self, session: AsyncSession):
         self.session = session
 

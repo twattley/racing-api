@@ -31,9 +31,9 @@ class FeedbackService(BaseService):
         return self.format_todays_races(data)
 
     async def get_race_by_id(self, date: str, race_id: int):
-        date_filter = (datetime.strptime(date, "%Y-%m-%d") - timedelta(
-            weeks=FILTER_PERIOD
-        )).strftime("%Y-%m-%d")
+        date_filter = (
+            datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
+        ).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_by_id(date, race_id)
         return self.format_todays_form_data(
             data,
@@ -42,6 +42,7 @@ class FeedbackService(BaseService):
             FeedbackService.filter_dataframe_by_date,
             self.transformation_service.calculate,
         )
+
     async def get_race_result_by_id(self, date: str, race_id: int):
         data = await self.feedback_repository.get_race_result_by_id(date, race_id)
         data = data.pipe(self.transformation_service.amend_finishing_position)
@@ -120,9 +121,9 @@ class FeedbackService(BaseService):
         return [race_data]
 
     async def get_race_graph_by_id(self, date: str, race_id: int):
-        date_filter = (datetime.strptime(date, "%Y-%m-%d") - timedelta(
-            weeks=FILTER_PERIOD
-        )).strftime("%Y-%m-%d")
+        date_filter = (
+            datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
+        ).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_graph_by_id(date, race_id)
         return self.format_todays_graph_data(
             data,

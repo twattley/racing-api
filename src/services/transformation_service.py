@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -10,7 +9,7 @@ class TransformationService:
     @staticmethod
     def _sort_data(data: pd.DataFrame) -> pd.DataFrame:
         return data.sort_values(by=["horse_id", "race_date"])
-    
+
     @staticmethod
     def _create_tmp_vars(data: pd.DataFrame, date: str) -> pd.DataFrame:
         return data.assign(
@@ -18,7 +17,7 @@ class TransformationService:
             todays_date_tmp=pd.to_datetime(date, errors="coerce"),
         )
 
-    @staticmethod   
+    @staticmethod
     def _create_days_since_last_ran(data: pd.DataFrame) -> pd.DataFrame:
         return data.assign(
             days_since_last_ran=data.sort_values("race_date_tmp")
@@ -35,7 +34,6 @@ class TransformationService:
             )
         )
 
-
     @staticmethod
     def _create_days_since_performance(data: pd.DataFrame) -> pd.DataFrame:
         data = data.assign(
@@ -47,24 +45,34 @@ class TransformationService:
 
     @staticmethod
     def _calculate_places(data: pd.DataFrame) -> pd.DataFrame:
-        data = data.sort_values(by=['horse_id', 'race_time'], ascending=True)
-        data['shifted_finishing_position'] = data.groupby('horse_id')['finishing_position'].shift(1, fill_value="0")
+        data = data.sort_values(by=["horse_id", "race_time"], ascending=True)
+        data["shifted_finishing_position"] = data.groupby("horse_id")[
+            "finishing_position"
+        ].shift(1, fill_value="0")
 
         data = data.assign(
-            first_places=(data["shifted_finishing_position"] == "1").groupby(data["horse_id"]).cumsum(),
-            second_places=(data["shifted_finishing_position"] == "2").groupby(data["horse_id"]).cumsum(),
+            first_places=(data["shifted_finishing_position"] == "1")
+            .groupby(data["horse_id"])
+            .cumsum(),
+            second_places=(data["shifted_finishing_position"] == "2")
+            .groupby(data["horse_id"])
+            .cumsum(),
             third_places=(
-                (data["shifted_finishing_position"] == "3") & (data["number_of_runners"] > 7)
-            ).groupby(data["horse_id"]).cumsum(),
+                (data["shifted_finishing_position"] == "3")
+                & (data["number_of_runners"] > 7)
+            )
+            .groupby(data["horse_id"])
+            .cumsum(),
             fourth_places=(
-                (data["shifted_finishing_position"] == "4") & (data["number_of_runners"] > 12)
-            ).groupby(data["horse_id"]).cumsum(),
+                (data["shifted_finishing_position"] == "4")
+                & (data["number_of_runners"] > 12)
+            )
+            .groupby(data["horse_id"])
+            .cumsum(),
         )
-        data.drop(columns=['shifted_finishing_position'], inplace=True)
+        data.drop(columns=["shifted_finishing_position"], inplace=True)
 
         return data
-
-
 
     @staticmethod
     def _create_distance_diff(data: pd.DataFrame) -> pd.DataFrame:
@@ -78,7 +86,6 @@ class TransformationService:
         return data.drop(columns=["race_date_tmp", "todays_date_tmp"])
 
     def calculate(self, data: pd.DataFrame, date: str) -> pd.DataFrame:
-
         return (
             TransformationService._create_tmp_vars(data, date)
             .pipe(TransformationService._sort_data)
@@ -89,7 +96,7 @@ class TransformationService:
             .pipe(TransformationService._create_distance_diff)
             .pipe(TransformationService._cleanup_temp_vars)
         )
-    
+
     def amend_finishing_position(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data.assign(
             finishing_position_numeric=pd.to_numeric(

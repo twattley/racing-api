@@ -7,7 +7,6 @@ from ..models.form_graph import TodaysHorseGraphData
 from ..models.todays_race_times import TodaysRacesResponse
 from ..services.todays_service import TodaysService, get_todays_service
 
-
 router = APIRouter()
 
 

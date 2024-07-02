@@ -49,12 +49,11 @@ def create_app() -> FastAPI:
 
 
 async def main(init_cache):
-    if init_cache == '--init-cache':
+    if init_cache == "--init-cache":
         construct_cache_data()
     return create_app()
 
 
 if __name__ == "__main__":
-    app = asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else None
-    ))
+    app = asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else None))
     uvicorn.run(app, host="0.0.0.0", port=8000)

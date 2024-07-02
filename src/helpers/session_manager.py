@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from ..config import db_url, config
+from ..config import config, db_url
 from ..helpers.sql_db import get_engine
 
 engine = get_engine(db_url, config)

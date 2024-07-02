@@ -1,8 +1,8 @@
 import os
-from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
 
 class Config(BaseSettings):
     db_name: str
@@ -30,8 +30,6 @@ def load_config() -> Config:
         env_file = "./tests/.test.env"
     load_dotenv(env_file, override=True)
     return Config()
-
-
 
 
 def create_db_url(config: Config) -> str:

@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta
-import numpy as np
 
 import pandas as pd
-from fastapi import Depends
-
 from api_helpers.betfair_client import (
-    BetfairCredentials,
     BetfairApiHelper,
-    BetFairClient
+    BetFairClient,
+    BetfairCredentials,
 )
+from fastapi import Depends
+from ..repository.todays_repository import TodaysRepository, get_todays_repository
+from ..utils.json_utils import read_json
+from .base_service import BaseService
+from .transformation_service import TransformationService
 
 from src.config import config
 
@@ -23,18 +25,12 @@ trading_client = BetFairClient(
 trading_client.login()
 
 
-from ..repository.todays_repository import TodaysRepository, get_todays_repository
-from ..utils.json_utils import read_json, write_json
-from .base_service import BaseService
-from .transformation_service import TransformationService
-
 FILTER_WEEKS = 52
 FILTER_YEARS = 3
 FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
 
 
 class TodaysService(BaseService):
-
     todays_repository: TodaysRepository
     transformation_service: TransformationService
     betfair_service: BetfairApiHelper
@@ -56,7 +52,7 @@ class TodaysService(BaseService):
     async def get_market_ids(self, race_id: int):
         d = read_json("./src/cache/market_ids.json")
         for i in d:
-            if i['race_id'] == race_id:
+            if i["race_id"] == race_id:
                 return [i["market_id_win"], i["market_id_place"]]
         raise ValueError(f"No market ids found for race id {race_id}")
 
@@ -119,7 +115,9 @@ class TodaysService(BaseService):
             .sort_values(by="race_time", ascending=True)
         ).merge(betfair_ids, on="todays_bf_unique_id", how="left")
 
-        runners = win_and_place[win_and_place['status'] == 'ACTIVE']['horse_id'].unique()
+        runners = win_and_place[win_and_place["status"] == "ACTIVE"][
+            "horse_id"
+        ].unique()
 
         win_sp = dict(zip(win_and_place["horse_id"], win_and_place["betfair_win_sp"]))
         place_sp = dict(
@@ -130,12 +128,12 @@ class TodaysService(BaseService):
             todays_data.loc[todays_data["data_type"] == "today", "horse_id"].map(win_sp)
         )
         todays_data.loc[todays_data["data_type"] == "today", "betfair_place_sp"] = (
-            todays_data.loc[todays_data["data_type"] == "today", "horse_id"].map(
-                place_sp
-            )
+            todays_data.loc[
+                todays_data["data_type"] == "today", "horse_id"
+            ].map(place_sp)
         )
 
-        return todays_data[todays_data['horse_id'].isin(runners)]
+        return todays_data[todays_data["horse_id"].isin(runners)]
 
     async def get_race_graph_by_id(self, race_id: int):
         date_filter = (datetime.now() - timedelta(weeks=FILTER_PERIOD)).strftime(
@@ -148,7 +146,7 @@ class TodaysService(BaseService):
             date_filter,
             TodaysService.filter_dataframe_by_date,
         )
-        
+
 
 def get_todays_service(
     todays_repository: TodaysRepository = Depends(get_todays_repository),

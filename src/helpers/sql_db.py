@@ -5,7 +5,9 @@ import json
 import pydantic.json
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.asyncio import create_async_engine
+
 from src.config import Config
+
 
 def get_engine(db_url, config: Config):
     return create_async_engine(
@@ -24,6 +26,5 @@ def get_engine(db_url, config: Config):
 
 def create_sync_engine(config: Config) -> Engine:
     return create_engine(
-            f"postgresql://{config.db_username}:{config.db_password}@{config.db_host}:{config.db_port}/{config.db_name}"
-        )
-
+        f"postgresql://{config.db_username}:{config.db_password}@{config.db_host}:{config.db_port}/{config.db_name}"
+    )

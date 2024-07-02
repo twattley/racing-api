@@ -1,5 +1,5 @@
-import math
 from typing import Callable
+
 import numpy as np
 import pandas as pd
 
@@ -59,7 +59,9 @@ class BaseService:
         filter_function: Callable,
         transformation_function: Callable,
     ) -> list[dict]:
-        data = data.pipe(filter_function, date_filter).pipe(transformation_function, date)
+        data = data.pipe(filter_function, date_filter).pipe(
+            transformation_function, date
+        )
         data.pipe(
             self.convert_string_columns,
             [
@@ -99,7 +101,10 @@ class BaseService:
                 "first_place_prize_money",
             ],
         )
-        data = data.assign(headgear=data["headgear"].replace("None", None))
+        data = data.assign(
+            headgear=data["headgear"].replace("None", None),
+            official_rating=data["official_rating"].fillna(0).astype("Int64"),
+        )
 
         today = data[data["data_type"] == "today"]
         historical = data[data["data_type"] == "historical"]
@@ -112,22 +117,23 @@ class BaseService:
             columns={
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
-                'official_rating': 'todays_official_rating',
-                'age': 'todays_horse_age',
-                'days_since_last_ran': 'todays_days_since_last_ran',
+                "official_rating": "todays_official_rating",
+                "age": "todays_horse_age",
+                "days_since_last_ran": "todays_days_since_last_ran",
             }
         )
-        print(today.columns)
 
         historical = historical.merge(
-            today[[
-                "horse_id", 
-                "todays_betfair_win_sp", 
-                "todays_betfair_place_sp", 
-                'todays_official_rating', 
-                'todays_horse_age',
-                "todays_days_since_last_ran"
-                ]],
+            today[
+                [
+                    "horse_id",
+                    "todays_betfair_win_sp",
+                    "todays_betfair_place_sp",
+                    "todays_official_rating",
+                    "todays_horse_age",
+                    "todays_days_since_last_ran",
+                ]
+            ],
             on="horse_id",
         )
         historical = historical.sort_values(
@@ -163,7 +169,9 @@ class BaseService:
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
                     "todays_official_rating": group["todays_official_rating"].iloc[0],
-                    "todays_days_since_last_ran": group["todays_days_since_last_ran"].iloc[0],
+                    "todays_days_since_last_ran": group[
+                        "todays_days_since_last_ran"
+                    ].iloc[0],
                     "performance_data": group.drop(
                         columns=[
                             "horse_id",
@@ -182,8 +190,10 @@ class BaseService:
         }
 
         return self.sanitize_nan(data)
-    
-    def format_todays_graph_data(self, data: pd.DataFrame, date_filter: str, filter_function: Callable) -> list[dict]:
+
+    def format_todays_graph_data(
+        self, data: pd.DataFrame, date_filter: str, filter_function: Callable
+    ) -> list[dict]:
         data = data.pipe(filter_function, date_filter).pipe(
             self.convert_integer_columns,
             [
@@ -192,7 +202,7 @@ class BaseService:
                 "rpr",
                 "tfr",
                 "tfig",
-            ], 
+            ],
         )
         performance_data = []
         for horse in data["horse_name"].unique():
@@ -206,7 +216,6 @@ class BaseService:
             )
 
         return performance_data
-
 
     def sanitize_nan(self, data):
         """Replace NaN values with None in nested structures."""
