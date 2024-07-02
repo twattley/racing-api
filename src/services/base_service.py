@@ -120,6 +120,10 @@ class BaseService:
                 "official_rating": "todays_official_rating",
                 "age": "todays_horse_age",
                 "days_since_last_ran": "todays_days_since_last_ran",
+                "first_places": "todays_first_places",
+                "second_places": "todays_second_places",
+                "third_places": "todays_third_places",
+                "fourth_places": "todays_fourth_places",
             }
         )
 
@@ -132,6 +136,10 @@ class BaseService:
                     "todays_official_rating",
                     "todays_horse_age",
                     "todays_days_since_last_ran",
+                    "todays_first_places",
+                    "todays_second_places",
+                    "todays_third_places",
+                    "todays_fourth_places",
                 ]
             ],
             on="horse_id",
@@ -161,10 +169,10 @@ class BaseService:
                     "horse_name": name,
                     "horse_id": horse_id,
                     "todays_horse_age": group["todays_horse_age"].iloc[0],
-                    "first_places": group["first_places"].iloc[0],
-                    "second_places": group["second_places"].iloc[0],
-                    "third_places": group["third_places"].iloc[0],
-                    "fourth_places": group["fourth_places"].iloc[0],
+                    "todays_first_places": group["todays_first_places"].iloc[0],
+                    "todays_second_places": group["todays_second_places"].iloc[0],
+                    "todays_third_places": group["todays_third_places"].iloc[0],
+                    "todays_fourth_places": group["todays_fourth_places"].iloc[0],
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],

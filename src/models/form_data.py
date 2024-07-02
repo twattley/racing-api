@@ -25,6 +25,10 @@ class TodaysHorseFormData(BaseEntity):
     rpr: Optional[int]
     tfr: Optional[int]
     tfig: Optional[int]
+    rating: Optional[int]
+    speed_figure: Optional[int]
+    rating_diff: Optional[int]
+    speed_rating_diff: Optional[int]
     in_play_high: Optional[float]
     in_play_low: Optional[float]
     in_race_comment: Optional[str]
@@ -75,10 +79,10 @@ class TodaysPerformanceDataResponse(BaseEntity):
     horse_name: str
     horse_id: int
     todays_horse_age: int
-    first_places: Optional[int]
-    second_places: Optional[int]
-    third_places: Optional[int]
-    fourth_places: Optional[int]
+    todays_first_places: Optional[int]
+    todays_second_places: Optional[int]
+    todays_third_places: Optional[int]
+    todays_fourth_places: Optional[int]
     number_of_runs: Optional[int]
     todays_betfair_win_sp: Optional[float]
     todays_betfair_place_sp: Optional[float]

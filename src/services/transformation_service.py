@@ -44,8 +44,38 @@ class TransformationService:
         return data
 
     @staticmethod
+    def _calculate_combined_ratings(data: pd.DataFrame) -> pd.DataFrame:
+        return data.assign(
+            rating=lambda data: ((data["tfr"] + data["rpr"]) / 2).fillna(0).astype(int),
+            speed_figure=lambda data: ((data["ts"] + data["tfig"]) / 2)
+            .fillna(0)
+            .astype(int),
+        )
+
+    @staticmethod
+    def _calculate_rating_versus_official_rating(data: pd.DataFrame) -> pd.DataFrame:
+        return data.assign(
+            rating_diff=np.select(
+                [
+                    data["official_rating"] == 0,
+                    data["official_rating"] > 0,
+                ],
+                [0, data["rating"] - data["official_rating"]],
+                default=0,
+            ),
+            speed_rating_diff=np.select(
+                [
+                    data["official_rating"] == 0,
+                    data["official_rating"] > 0,
+                ],
+                [0, data["speed_figure"] - data["official_rating"]],
+                default=0,
+            ),
+        )
+
+    @staticmethod
     def _calculate_places(data: pd.DataFrame) -> pd.DataFrame:
-        data = data.sort_values(by=["horse_id", "race_time"], ascending=True)
+        data = data.sort_values(by=["horse_id", "race_time"])
         data["shifted_finishing_position"] = data.groupby("horse_id")[
             "finishing_position"
         ].shift(1, fill_value="0")
@@ -94,6 +124,8 @@ class TransformationService:
             .pipe(TransformationService._create_number_of_runs)
             .pipe(TransformationService._calculate_places)
             .pipe(TransformationService._create_distance_diff)
+            .pipe(TransformationService._calculate_combined_ratings)
+            .pipe(TransformationService._calculate_rating_versus_official_rating)
             .pipe(TransformationService._cleanup_temp_vars)
         )
 
