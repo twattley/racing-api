@@ -6,10 +6,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette_context.middleware import RawContextMiddleware
 
-from src.controllers.auth_api import router as AuthAPIRouter
 from src.controllers.feedback_api import router as FeedbackAPIRouter
 from src.controllers.todays_api import router as TodaysAPIRouter
-from src.middlewares.authentication import AuthMiddleware
 from src.middlewares.db_session import DBSessionMiddleware
 from src.utils.cache_utils import construct_cache_data
 
@@ -29,7 +27,6 @@ def create_app() -> FastAPI:
 
     app.add_middleware(RawContextMiddleware)
     app.add_middleware(DBSessionMiddleware)
-    app.add_middleware(AuthMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # List the URL(s) of your frontend app
@@ -42,7 +39,6 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(FeedbackAPIRouter, prefix=API_PREFIX_V1)
-    app.include_router(AuthAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(TodaysAPIRouter, prefix=API_PREFIX_V1)
 
     return app

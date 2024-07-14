@@ -3,10 +3,11 @@ export LOG_LEVEL="INFO"
 set -a
 source "/Users/tomwattley/Code/python/racing-api-project/racing-api/.env"
 set +a
+echo "Starting Racing API"
 cd $RACING_API_FOLDER 
 
 source $RACING_API_ENV
 
 export PYTHONPATH=$(pwd) 
 
-python3 $RACING_API_FOLDER/main.py > /Users/tomwattley/Code/application_logs/racing-api/racing-api-be.log 2>&1 &
+python3 $RACING_API_FOLDER/main.py --init-cache > /Users/tomwattley/Code/application_logs/racing-api/racing-api-be.log 2>&1 &
