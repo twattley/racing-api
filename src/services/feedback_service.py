@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 from fastapi import Depends
 
+from ..utils.cache_utils import save_todays_prices
+
 from ..repository.feedback_repository import FeedbackRepository, get_feedback_repository
 from ..utils.json_utils import read_json, write_json
 from .base_service import BaseService
@@ -11,6 +13,8 @@ from .transformation_service import TransformationService
 FILTER_WEEKS = 52
 FILTER_YEARS = 3
 FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
+
+CACHE_DIR = "./src/cache"
 
 
 class FeedbackService(BaseService):
@@ -35,6 +39,8 @@ class FeedbackService(BaseService):
             datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
         ).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_by_id(date, race_id)
+
+        save_todays_prices(data, f"{CACHE_DIR}/feedback_prices.json")
         return self.format_todays_form_data(
             data,
             date,
@@ -125,18 +131,22 @@ class FeedbackService(BaseService):
             datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
         ).strftime("%Y-%m-%d")
         data = await self.feedback_repository.get_race_graph_by_id(date, race_id)
-        return self.format_todays_graph_data(
+        p = self.format_todays_graph_data(
             data,
             date_filter,
             FeedbackService.filter_dataframe_by_date,
+            self.transformation_service.filter_visibility,
+            f"{CACHE_DIR}/feedback_prices.json",
+            date,
         )
+        return p
 
     async def get_current_date_today(self) -> list[dict]:
-        return read_json("./src/cache/feedback_date.json")
+        return read_json(f"{CACHE_DIR}/feedback_date.json")
 
     async def store_current_date_today(self, date: str):
         write_json({"today_date": date}, "./src/cache/feedback_date.json")
-        return read_json("./src/cache/feedback_date.json")
+        return read_json(f"{CACHE_DIR}/feedback_date.json")
 
 
 def get_feedback_service(

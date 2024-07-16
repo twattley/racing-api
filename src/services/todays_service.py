@@ -7,6 +7,8 @@ from api_helpers.betfair_client import (
     BetfairCredentials,
 )
 from fastapi import Depends
+
+from ..utils.cache_utils import save_todays_prices
 from ..repository.todays_repository import TodaysRepository, get_todays_repository
 from ..utils.json_utils import read_json
 from .base_service import BaseService
@@ -29,6 +31,8 @@ FILTER_WEEKS = 52
 FILTER_YEARS = 3
 FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
 
+CACHE_DIR = "./src/cache"
+
 
 class TodaysService(BaseService):
     todays_repository: TodaysRepository
@@ -50,7 +54,7 @@ class TodaysService(BaseService):
         return data[data["race_time"] > date_filter].copy()
 
     async def get_market_ids(self, race_id: int):
-        d = read_json("./src/cache/market_ids.json")
+        d = read_json(f"{CACHE_DIR}/market_ids.json")
         for i in d:
             if i["race_id"] == race_id:
                 return [i["market_id_win"], i["market_id_place"]]
@@ -72,6 +76,7 @@ class TodaysService(BaseService):
         data = TodaysService.curate_live_race_data(
             todays_data, betfair_data, betfair_ids
         )
+        save_todays_prices(data, f"{CACHE_DIR}/todays_prices.json")
         return self.format_todays_form_data(
             data,
             date,
@@ -81,7 +86,9 @@ class TodaysService(BaseService):
         )
 
     @staticmethod
-    def curate_live_race_data(todays_data, betfair_data, betfair_ids):
+    def curate_live_race_data(
+        todays_data: pd.DataFrame, betfair_data: pd.DataFrame, betfair_ids: list
+    ) -> pd.DataFrame:
         win_and_place = (
             pd.merge(
                 betfair_data[betfair_data["market"] == "WIN"],
@@ -145,6 +152,9 @@ class TodaysService(BaseService):
             data,
             date_filter,
             TodaysService.filter_dataframe_by_date,
+            self.transformation_service.filter_visibility,
+            f"{CACHE_DIR}/todays_prices.json",
+            date,
         )
 
 

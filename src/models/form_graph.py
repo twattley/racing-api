@@ -12,6 +12,10 @@ class TodaysGraphPerformanceData(BaseEntity):
     rpr: Optional[int]
     tfr: Optional[int]
     tfig: Optional[int]
+    rating: Optional[int]
+    speed_figure: Optional[int]
+    rolling_rating: Optional[int]
+    rolling_speed_rating: Optional[int]
     race_id: int
     unique_id: str
 
@@ -19,4 +23,5 @@ class TodaysGraphPerformanceData(BaseEntity):
 class TodaysHorseGraphData(BaseEntity):
     horse_name: str
     horse_id: int
+    initial_visibility: bool
     performance_data: List[TodaysGraphPerformanceData]

@@ -115,20 +115,6 @@ class TransformationService:
     def _cleanup_temp_vars(data: pd.DataFrame) -> pd.DataFrame:
         return data.drop(columns=["race_date_tmp", "todays_date_tmp"])
 
-    def calculate(self, data: pd.DataFrame, date: str) -> pd.DataFrame:
-        return (
-            TransformationService._create_tmp_vars(data, date)
-            .pipe(TransformationService._sort_data)
-            .pipe(TransformationService._create_days_since_performance)
-            .pipe(TransformationService._create_days_since_last_ran)
-            .pipe(TransformationService._create_number_of_runs)
-            .pipe(TransformationService._calculate_places)
-            .pipe(TransformationService._create_distance_diff)
-            .pipe(TransformationService._calculate_combined_ratings)
-            .pipe(TransformationService._calculate_rating_versus_official_rating)
-            .pipe(TransformationService._cleanup_temp_vars)
-        )
-
     def amend_finishing_position(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data.assign(
             finishing_position_numeric=pd.to_numeric(
@@ -154,3 +140,47 @@ class TransformationService:
             )
         ).drop(columns=["finishing_position_numeric"])
         return data.sort_values(by=["total_distance_beaten"])
+
+    def calculate(self, data: pd.DataFrame, date: str) -> pd.DataFrame:
+        data = (
+            TransformationService._create_tmp_vars(data, date)
+            .pipe(TransformationService._sort_data)
+            .pipe(TransformationService._create_days_since_performance)
+            .pipe(TransformationService._create_days_since_last_ran)
+            .pipe(TransformationService._create_number_of_runs)
+            .pipe(TransformationService._calculate_places)
+            .pipe(TransformationService._create_distance_diff)
+            .pipe(TransformationService._calculate_combined_ratings)
+            .pipe(TransformationService._calculate_rating_versus_official_rating)
+            .pipe(TransformationService._cleanup_temp_vars)
+        )
+
+        today = data[data["data_type"] == "today"]
+        outsiders = today[today["betfair_win_sp"] > 16]["horse_id"].unique()
+        long_break = today[today["days_since_last_ran"] > 60]["horse_id"].unique()
+        short_break = today[today["days_since_last_ran"] <= 6]["horse_id"].unique()
+        visible = set(list(long_break) + list(short_break) + list(outsiders))
+        return data.assign(
+            initial_visibility=np.where(data["horse_id"].isin(visible), False, True)
+        )
+
+    def filter_visibility(
+        self, data: pd.DataFrame, date: str, prices_filepath: str
+    ) -> pd.DataFrame:
+        prices = pd.read_json(prices_filepath)
+        data = (
+            TransformationService._create_tmp_vars(data, date)
+            .pipe(TransformationService._sort_data)
+            .pipe(TransformationService._create_days_since_performance)
+            .pipe(TransformationService._create_days_since_last_ran)
+            .pipe(TransformationService._calculate_combined_ratings)
+        )
+        outsiders = prices[prices["betfair_win_sp"] > 16]["horse_id"].unique()
+        today = data[data["data_type"] == "today"]
+        long_break = today[today["days_since_last_ran"] > 60]["horse_id"].unique()
+        short_break = today[today["days_since_last_ran"] <= 6]["horse_id"].unique()
+        visible = set(list(long_break) + list(short_break) + list(outsiders))
+        data = data.assign(
+            initial_visibility=np.where(data["horse_id"].isin(visible), False, True)
+        )
+        return data[data["initial_visibility"] == True]

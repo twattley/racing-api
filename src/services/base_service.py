@@ -168,6 +168,7 @@ class BaseService:
                 {
                     "horse_name": name,
                     "horse_id": horse_id,
+                    "initial_visibility": group["initial_visibility"].iloc[0],
                     "todays_horse_age": group["todays_horse_age"].iloc[0],
                     "todays_first_places": group["todays_first_places"].iloc[0],
                     "todays_second_places": group["todays_second_places"].iloc[0],
@@ -200,17 +201,33 @@ class BaseService:
         return self.sanitize_nan(data)
 
     def format_todays_graph_data(
-        self, data: pd.DataFrame, date_filter: str, filter_function: Callable
+        self,
+        data: pd.DataFrame,
+        date_filter: str,
+        filter_function: Callable,
+        transformation_function: Callable,
+        prices_filepath: str,
+        date: str,
     ) -> list[dict]:
-        data = data.pipe(filter_function, date_filter).pipe(
-            self.convert_integer_columns,
-            [
-                "official_rating",
-                "ts",
-                "rpr",
-                "tfr",
-                "tfig",
-            ],
+        data = self.create_todays_rating(data)
+        data = self.format_todays_rating(data)
+        data = (
+            data.pipe(transformation_function, date, prices_filepath)
+            .pipe(filter_function, date_filter)
+            .pipe(
+                self.convert_integer_columns,
+                [
+                    "official_rating",
+                    "ts",
+                    "rpr",
+                    "tfr",
+                    "tfig",
+                    "rating",
+                    "speed_figure",
+                    "rolling_rating",
+                    "rolling_speed_rating",
+                ],
+            )
         )
         performance_data = []
         for horse in data["horse_name"].unique():
@@ -219,11 +236,72 @@ class BaseService:
                 {
                     "horse_name": horse_data["horse_name"].iloc[0],
                     "horse_id": horse_data["horse_id"].iloc[0],
+                    "initial_visibility": horse_data["initial_visibility"].iloc[0],
                     "performance_data": horse_data.to_dict(orient="records"),
                 }
             )
 
         return performance_data
+
+    def create_todays_rating(self, data: pd.DataFrame) -> pd.DataFrame:
+        data["rank"] = data.groupby("horse_id")["race_date"].rank(
+            ascending=False, method="dense"
+        )
+        data["race_time"] = pd.to_datetime(data["race_time"])
+        today = pd.to_datetime(data[data["data_type"] == "today"]["race_date"].iloc[0])
+        two_years_ago = today - pd.DateOffset(years=2)
+
+        filtered_data = data[(data["race_time"] >= two_years_ago) & (data["rank"] <= 5)]
+
+        medians = filtered_data.groupby("horse_id")[["speed_figure", "rating"]].median()
+        medians.columns = ["median_speed", "median_rating"]
+        means = filtered_data.groupby("horse_id")[["speed_figure", "rating"]].mean()
+        means.columns = ["mean_speed", "mean_rating"]
+
+        medians = medians.rename(
+            columns={"speed_figure": "median_speed", "rating": "median_rating"}
+        )
+        means = means.rename(
+            columns={"speed_figure": "mean_speed", "rating": "mean_rating"}
+        )
+        result = data.merge(medians, on="horse_id", how="left")
+        result = result.merge(means, on="horse_id", how="left")
+
+        result[["median_speed", "median_rating"]] = result[
+            ["median_speed", "median_rating"]
+        ].fillna(0)
+        result[["mean_speed", "mean_rating"]] = result[
+            ["mean_speed", "mean_rating"]
+        ].fillna(0)
+
+        return result
+
+    def format_todays_rating(self, data: pd.DataFrame) -> pd.DataFrame:
+        data["rating_tmp"] = (data["median_rating"] + data["mean_rating"]) / 2
+        data["speed_rating_tmp"] = (data["median_speed"] + data["median_rating"]) / 2
+        data["speed_figure"] = data["speed_figure"].fillna(data["speed_rating_tmp"])
+        data["rating"] = data["rating"].fillna(data["rating_tmp"])
+        data["rolling_rating"] = data["rating"].fillna(data["rating_tmp"])
+        data["rolling_speed_rating"] = data["speed_figure"].fillna(
+            data["speed_rating_tmp"]
+        )
+        data = data.drop(
+            columns=[
+                "rating_tmp",
+                "speed_rating_tmp",
+                "median_rating",
+                "mean_rating",
+                "median_speed",
+                "mean_speed",
+                "rank",
+            ]
+        )
+        data["rating"] = data["rating"].round(0).astype(int)
+        data["speed_figure"] = data["speed_figure"].round(0).astype(int)
+        data["rolling_rating"] = data["rolling_rating"].round(0).astype(int)
+        data["rolling_speed_rating"] = data["rolling_speed_rating"].round(0).astype(int)
+
+        return data
 
     def sanitize_nan(self, data):
         """Replace NaN values with None in nested structures."""
