@@ -145,10 +145,15 @@ class BaseService:
             on="horse_id",
         )
         historical = historical.sort_values(
-            by=["horse_id", "race_date"], ascending=[True, False]
+            by=["initial_visibility", "todays_betfair_win_sp", "horse_id", "race_date"],
+            ascending=[False, True, False, False],
         )
-
-        grouped = historical.groupby(["horse_id", "horse_name"])
+        historical.assign(
+            todays_betfair_win_sp=lambda x: np.where(
+                x["todays_betfair_win_sp"] > 100, 100, x["todays_betfair_win_sp"]
+            )
+        )
+        grouped = historical.groupby(["horse_id", "horse_name"], sort=False)
 
         data = {
             "race_id": race_details["race_id"],
