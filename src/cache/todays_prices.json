@@ -1,0 +1,106 @@
+[
+    {
+        "horse_name": "Always Fearless",
+        "betfair_win_sp": 34.0,
+        "betfair_place_sp": 6.4,
+        "official_rating": 62,
+        "race_id": 871151,
+        "horse_id": 147346
+    },
+    {
+        "horse_name": "Cobh Harbour",
+        "betfair_win_sp": 23.0,
+        "betfair_place_sp": 5.3,
+        "official_rating": 53,
+        "race_id": 871151,
+        "horse_id": 187296
+    },
+    {
+        "horse_name": "Dappled Light",
+        "betfair_win_sp": 7.0,
+        "betfair_place_sp": 2.5,
+        "official_rating": 53,
+        "race_id": 871151,
+        "horse_id": 177307
+    },
+    {
+        "horse_name": "Eccentric",
+        "betfair_win_sp": 40.0,
+        "betfair_place_sp": NaN,
+        "official_rating": 58,
+        "race_id": 871151,
+        "horse_id": 184519
+    },
+    {
+        "horse_name": "Elwing",
+        "betfair_win_sp": 140.0,
+        "betfair_place_sp": 16.5,
+        "official_rating": 46,
+        "race_id": 871151,
+        "horse_id": 178366
+    },
+    {
+        "horse_name": "Monks Mead",
+        "betfair_win_sp": 8.2,
+        "betfair_place_sp": 2.58,
+        "official_rating": 61,
+        "race_id": 871151,
+        "horse_id": 184950
+    },
+    {
+        "horse_name": "My Ambition",
+        "betfair_win_sp": 3.4,
+        "betfair_place_sp": 1.8,
+        "official_rating": 58,
+        "race_id": 871151,
+        "horse_id": 168530
+    },
+    {
+        "horse_name": "Oscar Mike",
+        "betfair_win_sp": 14.5,
+        "betfair_place_sp": 4.0,
+        "official_rating": 60,
+        "race_id": 871151,
+        "horse_id": 6463341
+    },
+    {
+        "horse_name": "Ower Starlight",
+        "betfair_win_sp": 27.0,
+        "betfair_place_sp": 6.2,
+        "official_rating": 46,
+        "race_id": 871151,
+        "horse_id": 166117
+    },
+    {
+        "horse_name": "Secret Sauce",
+        "betfair_win_sp": 140.0,
+        "betfair_place_sp": NaN,
+        "official_rating": 52,
+        "race_id": 871151,
+        "horse_id": 175900
+    },
+    {
+        "horse_name": "Shaws Phoenix",
+        "betfair_win_sp": 11.0,
+        "betfair_place_sp": 3.35,
+        "official_rating": 60,
+        "race_id": 871151,
+        "horse_id": 182737
+    },
+    {
+        "horse_name": "Thundering Breeze",
+        "betfair_win_sp": 12.5,
+        "betfair_place_sp": 3.8,
+        "official_rating": 62,
+        "race_id": 871151,
+        "horse_id": 6671260
+    },
+    {
+        "horse_name": "Weston Court",
+        "betfair_win_sp": 15.0,
+        "betfair_place_sp": 4.6,
+        "official_rating": 54,
+        "race_id": 871151,
+        "horse_id": 185448
+    }
+]

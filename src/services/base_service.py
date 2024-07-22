@@ -62,6 +62,10 @@ class BaseService:
         data = data.pipe(filter_function, date_filter).pipe(
             transformation_function, date
         )
+        data = self.create_todays_rating(data)
+        data = self.format_todays_rating(data)
+        data = self.calculate_rolling_averages(data)
+        data.to_csv("~/Desktop/test.csv", index=False)
         data.pipe(
             self.convert_string_columns,
             [
@@ -113,12 +117,13 @@ class BaseService:
             orient="records"
         )[0]
 
-        today = today.rename(
+        today = today.assign(
+            todays_horse_age=today["age"],
+            todays_official_rating=today["official_rating"],
+        ).rename(
             columns={
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
-                "official_rating": "todays_official_rating",
-                "age": "todays_horse_age",
                 "days_since_last_ran": "todays_days_since_last_ran",
                 "first_places": "todays_first_places",
                 "second_places": "todays_second_places",
@@ -144,16 +149,13 @@ class BaseService:
             ],
             on="horse_id",
         )
-        historical = historical.sort_values(
-            by=["initial_visibility", "todays_betfair_win_sp", "horse_id", "race_date"],
-            ascending=[False, True, False, False],
+
+        combined_data = pd.concat([historical, today]).sort_values(
+            by=["todays_betfair_win_sp", "horse_id", "race_date"],
+            ascending=[True, True, False],
         )
-        historical.assign(
-            todays_betfair_win_sp=lambda x: np.where(
-                x["todays_betfair_win_sp"] > 100, 100, x["todays_betfair_win_sp"]
-            )
-        )
-        grouped = historical.groupby(["horse_id", "horse_name"], sort=False)
+
+        grouped = combined_data.groupby(["horse_id", "horse_name"], sort=False)
 
         data = {
             "race_id": race_details["race_id"],
@@ -173,7 +175,6 @@ class BaseService:
                 {
                     "horse_name": name,
                     "horse_id": horse_id,
-                    "initial_visibility": group["initial_visibility"].iloc[0],
                     "todays_horse_age": group["todays_horse_age"].iloc[0],
                     "todays_first_places": group["todays_first_places"].iloc[0],
                     "todays_second_places": group["todays_second_places"].iloc[0],
@@ -205,49 +206,6 @@ class BaseService:
 
         return self.sanitize_nan(data)
 
-    def format_todays_graph_data(
-        self,
-        data: pd.DataFrame,
-        date_filter: str,
-        filter_function: Callable,
-        transformation_function: Callable,
-        prices_filepath: str,
-        date: str,
-    ) -> list[dict]:
-        data = self.create_todays_rating(data)
-        data = self.format_todays_rating(data)
-        data = (
-            data.pipe(transformation_function, date, prices_filepath)
-            .pipe(filter_function, date_filter)
-            .pipe(
-                self.convert_integer_columns,
-                [
-                    "official_rating",
-                    "ts",
-                    "rpr",
-                    "tfr",
-                    "tfig",
-                    "rating",
-                    "speed_figure",
-                    "rolling_rating",
-                    "rolling_speed_rating",
-                ],
-            )
-        )
-        performance_data = []
-        for horse in data["horse_name"].unique():
-            horse_data = data[data["horse_name"] == horse]
-            performance_data.append(
-                {
-                    "horse_name": horse_data["horse_name"].iloc[0],
-                    "horse_id": horse_data["horse_id"].iloc[0],
-                    "initial_visibility": horse_data["initial_visibility"].iloc[0],
-                    "performance_data": horse_data.to_dict(orient="records"),
-                }
-            )
-
-        return performance_data
-
     def create_todays_rating(self, data: pd.DataFrame) -> pd.DataFrame:
         data["rank"] = data.groupby("horse_id")["race_date"].rank(
             ascending=False, method="dense"
@@ -272,23 +230,79 @@ class BaseService:
         result = data.merge(medians, on="horse_id", how="left")
         result = result.merge(means, on="horse_id", how="left")
 
-        result[["median_speed", "median_rating"]] = result[
-            ["median_speed", "median_rating"]
-        ].fillna(0)
-        result[["mean_speed", "mean_rating"]] = result[
-            ["mean_speed", "mean_rating"]
-        ].fillna(0)
-
         return result
+
+    def calculate_rolling_averages(self, data: pd.DataFrame) -> pd.DataFrame:
+        def g(df):
+            df["rolling_rating"] = (
+                df["rating"].rolling(window=3, min_periods=1).mean().shift(1).bfill()
+            )
+            df["rolling_speed_rating"] = (
+                df["speed_figure"]
+                .rolling(window=3, min_periods=1)
+                .mean()
+                .shift(1)
+                .bfill()
+            )
+            return df
+
+        rolling_ratings = {}
+        rolling_speeds = {}
+
+        for h_id in data["horse_id"].unique():
+            sub_data = (
+                data[data["horse_id"] == h_id]
+                .sort_values(by="rank", ascending=False)
+                .copy()
+            )
+            # Create a deep copy of the sub_data
+            new_data = g(sub_data)
+
+            # Reset index before updating dictionaries to avoid KeyError
+            new_data = new_data.reset_index(drop=True)
+
+            # Create dictionaries with reset index
+            ratings_dict = dict(zip(new_data["unique_id"], new_data["rolling_rating"]))
+            speed_ratings_dict = dict(
+                zip(new_data["unique_id"], new_data["rolling_speed_rating"])
+            )
+
+            rolling_ratings.update(ratings_dict)
+            rolling_speeds.update(speed_ratings_dict)
+
+        # Map using the original DataFrame
+        data["rolling_rating"] = (
+            data["unique_id"].map(rolling_ratings).fillna(0).round(0).astype(int)
+        )
+        data["rolling_speed_rating"] = (
+            data["unique_id"].map(rolling_speeds).fillna(0).round(0).astype(int)
+        )
+
+        data["rolling_rating"] = np.where(
+            data["data_type"] == "today",
+            data["rating"],
+            data["rolling_rating"],
+        )
+        data["rolling_speed_rating"] = np.where(
+            data["data_type"] == "today",
+            data["speed_figure"],
+            data["rolling_speed_rating"],
+        )
+
+        return data
 
     def format_todays_rating(self, data: pd.DataFrame) -> pd.DataFrame:
         data["rating_tmp"] = (data["median_rating"] + data["mean_rating"]) / 2
         data["speed_rating_tmp"] = (data["median_speed"] + data["median_rating"]) / 2
-        data["speed_figure"] = data["speed_figure"].fillna(data["speed_rating_tmp"])
-        data["rating"] = data["rating"].fillna(data["rating_tmp"])
-        data["rolling_rating"] = data["rating"].fillna(data["rating_tmp"])
-        data["rolling_speed_rating"] = data["speed_figure"].fillna(
-            data["speed_rating_tmp"]
+        data["speed_figure"] = np.where(
+            data["data_type"] == "today",
+            data["speed_rating_tmp"],
+            data["speed_figure"],
+        )
+        data["rating"] = np.where(
+            data["data_type"] == "today",
+            data["rating_tmp"],
+            data["rating"],
         )
         data = data.drop(
             columns=[
@@ -298,13 +312,21 @@ class BaseService:
                 "mean_rating",
                 "median_speed",
                 "mean_speed",
-                "rank",
             ]
         )
         data["rating"] = data["rating"].round(0).astype(int)
         data["speed_figure"] = data["speed_figure"].round(0).astype(int)
-        data["rolling_rating"] = data["rolling_rating"].round(0).astype(int)
-        data["rolling_speed_rating"] = data["rolling_speed_rating"].round(0).astype(int)
+
+        print(
+            data[
+                [
+                    "horse_id",
+                    "race_date",
+                    "rating",
+                    "speed_figure",
+                ]
+            ]
+        )
 
         return data
 

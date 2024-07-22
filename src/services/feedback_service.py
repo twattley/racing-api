@@ -126,21 +126,6 @@ class FeedbackService(BaseService):
         race_data["race_results"] = horse_data_list
         return [race_data]
 
-    async def get_race_graph_by_id(self, date: str, race_id: int):
-        date_filter = (
-            datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
-        ).strftime("%Y-%m-%d")
-        data = await self.feedback_repository.get_race_graph_by_id(date, race_id)
-        p = self.format_todays_graph_data(
-            data,
-            date_filter,
-            FeedbackService.filter_dataframe_by_date,
-            self.transformation_service.filter_visibility,
-            f"{CACHE_DIR}/feedback_prices.json",
-            date,
-        )
-        return p
-
     async def get_current_date_today(self) -> list[dict]:
         return read_json(f"{CACHE_DIR}/feedback_date.json")
 
