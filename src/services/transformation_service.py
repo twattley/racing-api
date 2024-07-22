@@ -155,32 +155,4 @@ class TransformationService:
             .pipe(TransformationService._cleanup_temp_vars)
         )
 
-        today = data[data["data_type"] == "today"]
-        outsiders = today[today["betfair_win_sp"] > 16]["horse_id"].unique()
-        long_break = today[today["days_since_last_ran"] > 60]["horse_id"].unique()
-        short_break = today[today["days_since_last_ran"] <= 6]["horse_id"].unique()
-        visible = set(list(long_break) + list(short_break) + list(outsiders))
-        return data.assign(
-            initial_visibility=np.where(data["horse_id"].isin(visible), False, True)
-        )
-
-    def filter_visibility(
-        self, data: pd.DataFrame, date: str, prices_filepath: str
-    ) -> pd.DataFrame:
-        prices = pd.read_json(prices_filepath)
-        data = (
-            TransformationService._create_tmp_vars(data, date)
-            .pipe(TransformationService._sort_data)
-            .pipe(TransformationService._create_days_since_performance)
-            .pipe(TransformationService._create_days_since_last_ran)
-            .pipe(TransformationService._calculate_combined_ratings)
-        )
-        outsiders = prices[prices["betfair_win_sp"] > 16]["horse_id"].unique()
-        today = data[data["data_type"] == "today"]
-        long_break = today[today["days_since_last_ran"] > 60]["horse_id"].unique()
-        short_break = today[today["days_since_last_ran"] <= 6]["horse_id"].unique()
-        visible = set(list(long_break) + list(short_break) + list(outsiders))
-        data = data.assign(
-            initial_visibility=np.where(data["horse_id"].isin(visible), False, True)
-        )
-        return data[data["initial_visibility"] == True]
+        return data

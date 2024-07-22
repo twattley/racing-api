@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends
 from ..models.feedback_date import DateRequest, TodaysFeedbackDateResponse
 from ..models.feedback_result import TodaysRacesResultResponse
 from ..models.form_data import TodaysRaceFormData
-from ..models.form_graph import TodaysHorseGraphData
 from ..models.todays_race_times import TodaysRacesResponse
 from ..services.feedback_service import FeedbackService, get_feedback_service
 
@@ -59,20 +58,6 @@ async def get_race_by_id_and_date(
     if date is None:
         date = (await service.get_current_date_today())["today_date"]
     return await service.get_race_by_id(date=date, race_id=race_id)
-
-
-@router.get(
-    "/feedback/todays-races/graph/by-race-id",
-    response_model=List[TodaysHorseGraphData],
-)
-async def get_race_graph_by_id_and_date(
-    race_id: int,
-    date: Optional[str] = None,
-    service: FeedbackService = Depends(get_feedback_service),
-):
-    if date is None:
-        date = (await service.get_current_date_today())["today_date"]
-    return await service.get_race_graph_by_id(date=date, race_id=race_id)
 
 
 @router.get(
