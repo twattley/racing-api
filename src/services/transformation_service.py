@@ -53,24 +53,16 @@ class TransformationService:
         )
 
     @staticmethod
-    def _calculate_rating_versus_official_rating(data: pd.DataFrame) -> pd.DataFrame:
+    def _calculate_rating_diffs(data: pd.DataFrame) -> pd.DataFrame:
         return data.assign(
-            rating_diff=np.select(
-                [
-                    data["official_rating"] == 0,
-                    data["official_rating"] > 0,
-                ],
-                [0, data["rating"] - data["official_rating"]],
-                default=0,
-            ),
-            speed_rating_diff=np.select(
-                [
-                    data["official_rating"] == 0,
-                    data["official_rating"] > 0,
-                ],
-                [0, data["speed_figure"] - data["official_rating"]],
-                default=0,
-            ),
+            rating_diff=(data["rating"] - data["median_rating"])
+            .round(0)
+            .fillna(0)
+            .astype(int),
+            speed_rating_diff=(data["speed_figure"] - data["median_speed"])
+            .round(0)
+            .fillna(0)
+            .astype(int),
         )
 
     @staticmethod
@@ -106,9 +98,9 @@ class TransformationService:
 
     @staticmethod
     def _create_distance_diff(data: pd.DataFrame) -> pd.DataFrame:
-        todays_distance = data[data["data_type"] == "today"]["distance_meters"].iloc[0]
+        todays_distance = data[data["data_type"] == "today"]["distance_yards"].iloc[0]
         return data.assign(
-            distance_diff=(data["distance_meters"] - todays_distance).round(-2)
+            distance_diff=(data["distance_yards"] - todays_distance).round(-2)
         )
 
     @staticmethod
@@ -141,7 +133,62 @@ class TransformationService:
         ).drop(columns=["finishing_position_numeric"])
         return data.sort_values(by=["total_distance_beaten"])
 
-    def calculate(self, data: pd.DataFrame, date: str) -> pd.DataFrame:
+    @staticmethod
+    def _create_todays_rating(data: pd.DataFrame) -> pd.DataFrame:
+        data["rank"] = data.groupby("horse_id")["race_date"].rank(
+            ascending=False, method="dense"
+        )
+        data["race_time"] = pd.to_datetime(data["race_time"])
+        today = pd.to_datetime(data[data["data_type"] == "today"]["race_date"].iloc[0])
+        two_years_ago = today - pd.DateOffset(years=2)
+
+        filtered_data = data[(data["race_time"] >= two_years_ago) & (data["rank"] <= 5)]
+
+        medians = filtered_data.groupby("horse_id")[["speed_figure", "rating"]].median()
+        medians.columns = ["median_speed", "median_rating"]
+        means = filtered_data.groupby("horse_id")[["speed_figure", "rating"]].mean()
+        means.columns = ["mean_speed", "mean_rating"]
+
+        medians = medians.rename(
+            columns={"speed_figure": "median_speed", "rating": "median_rating"}
+        )
+        means = means.rename(
+            columns={"speed_figure": "mean_speed", "rating": "mean_rating"}
+        )
+        result = data.merge(medians, on="horse_id", how="left")
+        result = result.merge(means, on="horse_id", how="left")
+
+        return result
+
+    @staticmethod
+    def _fill_todays_rating(data: pd.DataFrame) -> pd.DataFrame:
+        data["rating_tmp"] = (data["median_rating"] + data["mean_rating"]) / 2
+        data["speed_rating_tmp"] = (data["median_speed"] + data["mean_speed"]) / 2
+        data["speed_figure"] = np.where(
+            data["data_type"] == "today",
+            data["speed_rating_tmp"],
+            data["speed_figure"],
+        )
+        data["rating"] = np.where(
+            data["data_type"] == "today",
+            data["rating_tmp"],
+            data["rating"],
+        )
+        data = data.drop(
+            columns=[
+                "rating_tmp",
+                "speed_rating_tmp",
+                "mean_rating",
+                "mean_speed",
+            ]
+        )
+        data["rating"] = data["rating"].round(0).astype(int)
+        data["speed_figure"] = data["speed_figure"].round(0).astype(int)
+
+        return data
+
+    @staticmethod
+    def calculate(data: pd.DataFrame, date: str) -> pd.DataFrame:
         data = (
             TransformationService._create_tmp_vars(data, date)
             .pipe(TransformationService._sort_data)
@@ -151,7 +198,9 @@ class TransformationService:
             .pipe(TransformationService._calculate_places)
             .pipe(TransformationService._create_distance_diff)
             .pipe(TransformationService._calculate_combined_ratings)
-            .pipe(TransformationService._calculate_rating_versus_official_rating)
+            .pipe(TransformationService._create_todays_rating)
+            .pipe(TransformationService._fill_todays_rating)
+            .pipe(TransformationService._calculate_rating_diffs)
             .pipe(TransformationService._cleanup_temp_vars)
         )
 

@@ -73,8 +73,6 @@ class TodaysHorseFormData(BaseEntity):
     jockey: str
     data_type: str
     distance_diff: Optional[float]
-    rolling_rating: Optional[int]
-    rolling_speed_rating: Optional[int]
 
 
 class TodaysPerformanceDataResponse(BaseEntity):
