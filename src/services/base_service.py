@@ -163,6 +163,7 @@ class BaseService:
             "hcap_range": race_details["hcap_range"],
             "age_range": race_details["age_range"],
             "conditions": race_details["conditions"],
+            "first_place_prize_money": race_details["first_place_prize_money"],
             "race_type": race_details["race_type"],
             "race_title": race_details["race_title"],
             "race_time": race_details["race_time"],

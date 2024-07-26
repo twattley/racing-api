@@ -9,6 +9,8 @@ class TodaysHorseFormData(BaseEntity):
     horse_sex: str
     days_since_last_ran: Optional[int]
     days_since_performance: Optional[int]
+    weeks_since_last_ran: Optional[int]
+    weeks_since_performance: Optional[int]
     draw: Optional[int]
     headgear: Optional[str]
     weight_carried: str
@@ -101,6 +103,7 @@ class TodaysRaceFormData(BaseEntity):
     hcap_range: Optional[str]
     age_range: str
     conditions: str
+    first_place_prize_money: Optional[int]
     race_type: Optional[str]
     race_title: str
     race_time: datetime

@@ -19,12 +19,14 @@ class TransformationService:
 
     @staticmethod
     def _create_days_since_last_ran(data: pd.DataFrame) -> pd.DataFrame:
-        return data.assign(
+        data = data.assign(
             days_since_last_ran=data.sort_values("race_date_tmp")
             .groupby("horse_id")["race_date_tmp"]
             .diff()
             .dt.days.astype("Int64")
         )
+
+        return data.assign(weeks_since_last_ran=data["days_since_last_ran"] // 7)
 
     @staticmethod
     def _create_number_of_runs(data: pd.DataFrame) -> pd.DataFrame:
@@ -41,7 +43,7 @@ class TransformationService:
                 data["todays_date_tmp"] - data["race_date_tmp"]
             ).dt.days
         )
-        return data
+        return data.assign(weeks_since_performance=data["days_since_performance"] // 7)
 
     @staticmethod
     def _calculate_combined_ratings(data: pd.DataFrame) -> pd.DataFrame:
@@ -63,6 +65,21 @@ class TransformationService:
             .round(0)
             .fillna(0)
             .astype(int),
+        )
+
+    @staticmethod
+    def _round_price_data(data: pd.DataFrame) -> pd.DataFrame:
+        def custom_round(x):
+            if x is None:
+                return None
+            if abs(x) >= 10:
+                return round(x)
+            else:
+                return round(x, 1)
+
+        return data.assign(
+            betfair_win_sp=data["betfair_win_sp"].apply(custom_round),
+            betfair_place_sp=data["betfair_place_sp"].apply(custom_round),
         )
 
     @staticmethod
@@ -201,6 +218,7 @@ class TransformationService:
             .pipe(TransformationService._create_todays_rating)
             .pipe(TransformationService._fill_todays_rating)
             .pipe(TransformationService._calculate_rating_diffs)
+            .pipe(TransformationService._round_price_data)
             .pipe(TransformationService._cleanup_temp_vars)
         )
 
