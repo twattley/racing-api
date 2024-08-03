@@ -203,20 +203,34 @@ class TransformationService:
                 "mean_speed",
             ]
         )
+        print(data[["rating", "horse_name", "data_type"]])
+        data[["rating", "horse_name", "data_type"]].to_csv(
+            "~/Desktop/test.csv", index=False
+        )
         data["rating"] = data["rating"].round(0).astype(int)
         data["speed_figure"] = data["speed_figure"].round(0).astype(int)
 
         return data
 
     @staticmethod
-    def _set_figure_visibility(data: pd.DataFrame) -> pd.DataFrame:
+    def _set_figure_visibility(data: pd.DataFrame, window=4, threshold=5):
         data = data.sort_values(by=["race_time"])
-        data["running_max"] = data["rating"].cummax()
-        data["within_5"] = data["rating"] >= (data["running_max"] - 5)
-        horses_within_5 = data.groupby("horse_name")["within_5"].transform("any")
-        data["figure_visibility"] = horses_within_5
 
-        return data.drop(columns=["running_max", "within_5"])
+        data["upper_envelope"] = (
+            data["rating"].rolling(window=window, min_periods=1).max()
+        )
+
+        data["within_threshold"] = data["rating"] >= (
+            data["upper_envelope"] - threshold
+        )
+
+        horses_within_threshold = data.groupby("horse_name")[
+            "within_threshold"
+        ].transform("any")
+
+        data["figure_visibility"] = horses_within_threshold
+
+        return data
 
     @staticmethod
     def _set_variance_visibility(data: pd.DataFrame) -> pd.DataFrame:
