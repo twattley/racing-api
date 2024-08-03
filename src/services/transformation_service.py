@@ -158,8 +158,12 @@ class TransformationService:
         data["race_time"] = pd.to_datetime(data["race_time"])
         today = pd.to_datetime(data[data["data_type"] == "today"]["race_date"].iloc[0])
         two_years_ago = today - pd.DateOffset(years=2)
-
-        filtered_data = data[(data["race_time"] >= two_years_ago) & (data["rank"] <= 5)]
+        filtered_data = data[
+            (data["race_time"] >= two_years_ago)
+            & (data["rank"] <= 5)
+            & (data["speed_figure"] >= 15)
+            & (data["rating"] >= 15)
+        ]
 
         medians = filtered_data.groupby("horse_id")[["speed_figure", "rating"]].median()
         medians.columns = ["median_speed", "median_rating"]
@@ -205,6 +209,54 @@ class TransformationService:
         return data
 
     @staticmethod
+    def _set_figure_visibility(data: pd.DataFrame) -> pd.DataFrame:
+        data = data.sort_values(by=["race_time"])
+        data["running_max"] = data["rating"].cummax()
+        data["within_5"] = data["rating"] >= (data["running_max"] - 5)
+        horses_within_5 = data.groupby("horse_name")["within_5"].transform("any")
+        data["figure_visibility"] = horses_within_5
+
+        return data.drop(columns=["running_max", "within_5"])
+
+    @staticmethod
+    def _set_variance_visibility(data: pd.DataFrame) -> pd.DataFrame:
+        def calculate_cv_with_exclusions(group):
+            num_runs = len(group)
+            if num_runs > 1:
+                mean = group["rating"].mean()
+                std = group["rating"].std()
+                poor_performance = group["rating"] < (mean - std)
+
+                if num_runs <= 8:
+                    num_exclusions = 1
+                else:
+                    num_exclusions = 2
+
+                for _ in range(num_exclusions):
+                    if poor_performance.any():
+                        index_to_exclude = poor_performance.idxmax()
+                        group = group.drop(index_to_exclude)
+                        poor_performance = group["rating"] < (
+                            group["rating"].mean() - group["rating"].std()
+                        )
+
+                mean = group["rating"].mean()
+                std = group["rating"].std()
+
+            cv = std / mean if mean != 0 else float("inf")
+            return cv
+
+        cv_values = data.groupby("horse_name", group_keys=False).apply(
+            calculate_cv_with_exclusions
+        )
+
+        variance_visibility = cv_values <= 0.3
+
+        data["variance_visibility"] = data["horse_name"].map(variance_visibility)
+
+        return data
+
+    @staticmethod
     def calculate(data: pd.DataFrame, date: str) -> pd.DataFrame:
         data = (
             TransformationService._create_tmp_vars(data, date)
@@ -220,6 +272,8 @@ class TransformationService:
             .pipe(TransformationService._calculate_rating_diffs)
             .pipe(TransformationService._round_price_data)
             .pipe(TransformationService._cleanup_temp_vars)
+            .pipe(TransformationService._set_figure_visibility)
+            .pipe(TransformationService._set_variance_visibility)
         )
 
         return data

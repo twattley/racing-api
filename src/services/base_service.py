@@ -125,6 +125,8 @@ class BaseService:
                 "second_places": "todays_second_places",
                 "third_places": "todays_third_places",
                 "fourth_places": "todays_fourth_places",
+                "figure_visibility": "todays_figure_visibility",
+                "variance_visibility": "todays_variance_visibility",
             }
         )
 
@@ -141,6 +143,8 @@ class BaseService:
                     "todays_second_places",
                     "todays_third_places",
                     "todays_fourth_places",
+                    "todays_figure_visibility",
+                    "todays_variance_visibility",
                 ]
             ],
             on="horse_id",
@@ -177,6 +181,12 @@ class BaseService:
                     "todays_second_places": group["todays_second_places"].iloc[0],
                     "todays_third_places": group["todays_third_places"].iloc[0],
                     "todays_fourth_places": group["todays_fourth_places"].iloc[0],
+                    "todays_figure_visibility": group["todays_figure_visibility"].iloc[
+                        0
+                    ],
+                    "todays_variance_visibility": group[
+                        "todays_variance_visibility"
+                    ].iloc[0],
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
