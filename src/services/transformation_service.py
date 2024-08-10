@@ -47,12 +47,33 @@ class TransformationService:
 
     @staticmethod
     def _calculate_combined_ratings(data: pd.DataFrame) -> pd.DataFrame:
-        return data.assign(
-            rating=lambda data: ((data["tfr"] + data["rpr"]) / 2).fillna(0).astype(int),
-            speed_figure=lambda data: ((data["ts"] + data["tfig"]) / 2)
-            .fillna(0)
-            .astype(int),
+        data = data.assign(
+            rating=lambda data: np.where(
+                data["tfr"].isnull() & data["rpr"].notnull(),
+                data["rpr"],
+                np.where(
+                    data["rpr"].isnull() & data["tfr"].notnull(),
+                    data["tfr"],
+                    ((data["tfr"] + data["rpr"]) / 2),
+                ),
+            ),
+            speed_figure=lambda data: np.where(
+                data["ts"].isnull() & data["tfig"].notnull(),
+                data["tfig"],
+                np.where(
+                    data["tfig"].isnull() & data["ts"].notnull(),
+                    data["ts"],
+                    ((data["ts"] + data["tfig"]) / 2),
+                ),
+            ),
         )
+
+        data = data.assign(
+            rating=data["rating"].fillna(0).round(0).astype(int),
+            speed_figure=data["speed_figure"].fillna(0).round(0).astype(int),
+        )
+
+        return data
 
     @staticmethod
     def _calculate_rating_diffs(data: pd.DataFrame) -> pd.DataFrame:
@@ -202,10 +223,6 @@ class TransformationService:
                 "mean_rating",
                 "mean_speed",
             ]
-        )
-        print(data[["rating", "horse_name", "data_type"]])
-        data[["rating", "horse_name", "data_type"]].to_csv(
-            "~/Desktop/test.csv", index=False
         )
         data["rating"] = data["rating"].round(0).astype(int)
         data["speed_figure"] = data["speed_figure"].round(0).astype(int)
