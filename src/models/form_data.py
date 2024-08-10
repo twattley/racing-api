@@ -55,7 +55,7 @@ class TodaysHorseFormData(BaseEntity):
     conditions: Optional[str]
     going: Optional[str]
     number_of_runners: Optional[int]
-    hcap_range: Optional[str]
+    hcap_range: Optional[int]
     age_range: Optional[str]
     surface: Optional[str]
     total_prize_money: Optional[int]
@@ -75,6 +75,8 @@ class TodaysHorseFormData(BaseEntity):
     jockey: str
     data_type: str
     distance_diff: Optional[float]
+    class_diff: Optional[str]
+    rating_range_diff: Optional[str]
 
 
 class TodaysPerformanceDataResponse(BaseEntity):
@@ -102,7 +104,7 @@ class TodaysRaceFormData(BaseEntity):
     going: str
     surface: str
     race_class: Optional[int]
-    hcap_range: Optional[str]
+    hcap_range: Optional[int]
     age_range: str
     conditions: str
     first_place_prize_money: Optional[int]

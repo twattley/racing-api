@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import re
 
 
 class TransformationService:
@@ -76,6 +77,25 @@ class TransformationService:
         return data
 
     @staticmethod
+    def _calculate_ratings_bands(data: pd.DataFrame) -> pd.DataFrame:
+        def extract_age_and_max_rating(text):
+            age_range_pattern = r"(\d+yo\+?)|(\d+-(\d+))"
+            matches = re.findall(age_range_pattern, text)
+            age_range = next((match[0] for match in matches if match[0]), None)
+            max_rating = next((match[2] for match in matches if match[2]), None)
+            return pd.Series({"age_range": age_range, "max_rating": max_rating})
+
+        data[["age_range", "hcap_range"]] = data["conditions"].apply(
+            extract_age_and_max_rating
+        )
+
+        data["hcap_range"] = (
+            pd.to_numeric(data["hcap_range"], errors="coerce").fillna(0).astype(int)
+        )
+
+        return data
+
+    @staticmethod
     def _calculate_rating_diffs(data: pd.DataFrame) -> pd.DataFrame:
         return data.assign(
             rating_diff=(data["rating"] - data["median_rating"])
@@ -139,6 +159,38 @@ class TransformationService:
         todays_distance = data[data["data_type"] == "today"]["distance_yards"].iloc[0]
         return data.assign(
             distance_diff=(data["distance_yards"] - todays_distance).round(-2)
+        )
+
+    @staticmethod
+    def _create_class_diff(data: pd.DataFrame) -> pd.DataFrame:
+        todays_class = data[data["data_type"] == "today"]["race_class"].iloc[0]
+        return data.assign(
+            class_diff=np.select(
+                [
+                    data["race_class"] < todays_class,
+                    data["race_class"] == todays_class,
+                    data["race_class"] > todays_class,
+                ],
+                ["higher", "same", "lower"],
+                default=None,
+            )
+        )
+
+    @staticmethod
+    def _create_rating_range_diff(data: pd.DataFrame) -> pd.DataFrame:
+        todays_rating_range_diff = data[data["data_type"] == "today"][
+            "hcap_range"
+        ].iloc[0]
+        return data.assign(
+            rating_range_diff=np.select(
+                [
+                    data["hcap_range"] > todays_rating_range_diff,
+                    data["hcap_range"] == todays_rating_range_diff,
+                    data["hcap_range"] < todays_rating_range_diff,
+                ],
+                ["higher", "same", "lower"],
+                default=None,
+            )
         )
 
     @staticmethod
@@ -305,6 +357,9 @@ class TransformationService:
             .pipe(TransformationService._cleanup_temp_vars)
             .pipe(TransformationService._set_figure_visibility)
             .pipe(TransformationService._set_variance_visibility)
+            .pipe(TransformationService._calculate_ratings_bands)
+            .pipe(TransformationService._create_class_diff)
+            .pipe(TransformationService._create_rating_range_diff)
         )
 
         return data
