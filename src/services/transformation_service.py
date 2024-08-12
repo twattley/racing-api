@@ -276,8 +276,8 @@ class TransformationService:
                 "mean_speed",
             ]
         )
-        data["rating"] = data["rating"].round(0).astype(int)
-        data["speed_figure"] = data["speed_figure"].round(0).astype(int)
+        data["rating"] = data["rating"].fillna(0).round(0).astype(int)
+        data["speed_figure"] = data["speed_figure"].fillna(0).round(0).astype(int)
 
         return data
 
