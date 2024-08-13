@@ -10,4 +10,4 @@ source $RACING_API_ENV
 
 export PYTHONPATH=$(pwd) 
 
-python3 $RACING_API_FOLDER/main.py --init-cache > /Users/tomwattley/Code/application_logs/racing-api/racing-api-be.log 2>&1 &
+python3 $RACING_API_FOLDER/main.py --init-cache > /Users/tomwattley/Code/application_logs/racing-api/racing-api-be.log 
