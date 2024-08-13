@@ -31,10 +31,13 @@ class TransformationService:
 
     @staticmethod
     def _create_number_of_runs(data: pd.DataFrame) -> pd.DataFrame:
-        return data.assign(
+        data = data.assign(
             number_of_runs=data.groupby("horse_id")["race_time"].transform(
                 lambda x: x.rank(method="first").astype("Int64")
             )
+        )
+        return data.assign(
+            number_of_runs=data["number_of_runs"].fillna(0).astype(int) - 1
         )
 
     @staticmethod
