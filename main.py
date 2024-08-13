@@ -8,6 +8,7 @@ from starlette_context.middleware import RawContextMiddleware
 
 from src.controllers.feedback_api import router as FeedbackAPIRouter
 from src.controllers.todays_api import router as TodaysAPIRouter
+from src.controllers.collateral_api import router as CollateralAPIRouter
 from src.middlewares.db_session import DBSessionMiddleware
 from src.utils.cache_utils import construct_cache_data
 
@@ -40,7 +41,7 @@ def create_app() -> FastAPI:
 
     app.include_router(FeedbackAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(TodaysAPIRouter, prefix=API_PREFIX_V1)
-
+    app.include_router(CollateralAPIRouter, prefix=API_PREFIX_V1)
     return app
 
 
