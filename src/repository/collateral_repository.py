@@ -14,11 +14,11 @@ class CollateralRepository(BaseRepository):
         self.session = session
 
     async def get_collateral_form_by_id(
-        self, race_date: str, race_id: int, todays_race_date: str
+        self, race_date: str, race_id: int, todays_race_date: str, horse_id: int
     ):
         result = await self.session.execute(
             text(
-                "SELECT * from public.select_collateral_form_data_by_race_id(:race_date, :race_id, :todays_race_date)"
+                "SELECT * from public.select_collateral_form_data_by_race_id(:race_date, :race_id, :todays_race_date, :horse_id)"
             ),
             {
                 "race_date": datetime.strptime(race_date, "%Y-%m-%d").date(),
@@ -26,6 +26,7 @@ class CollateralRepository(BaseRepository):
                 "todays_race_date": datetime.strptime(
                     todays_race_date, "%Y-%m-%d"
                 ).date(),
+                "horse_id": horse_id,
             },
         )
         return pd.DataFrame(result.fetchall())

@@ -366,3 +366,7 @@ class TransformationService:
         )
 
         return data
+
+    def transform_collateral_form_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        data = TransformationService._calculate_combined_ratings(data)
+        return data
