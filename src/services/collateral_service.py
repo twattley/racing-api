@@ -49,6 +49,14 @@ class CollateralService(BaseService):
             ],
         )
 
+        transformed_data["official_rating"] = transformed_data[
+            "official_rating"
+        ].fillna(0)
+
+        transformed_data = transformed_data.sort_values(
+            by=["distance_difference", "horse_id"], ascending=False
+        ).reset_index(drop=True)
+
         horse_collateral_data = []
 
         for horse in transformed_data["horse_name"].unique():
@@ -56,34 +64,37 @@ class CollateralService(BaseService):
             race_form = horse_data[horse_data["data_type"] == "race_form"]
             collateral = horse_data[horse_data["data_type"] == "collateral"]
 
+            if collateral.empty:
+                continue
+
             horse_data = {
-                "horse_id": int(race_form["horse_id"].iloc[0]),
+                "horse_id": race_form["horse_id"].iloc[0],
                 "horse_name": race_form["horse_name"].iloc[0],
-                "distance_difference": float(race_form["distance_difference"].iloc[0]),
-                "betfair_win_sp": float(race_form["betfair_win_sp"].iloc[0]),
-                "official_rating": int(race_form["official_rating"].iloc[0]),
+                "distance_difference": race_form["distance_difference"].iloc[0],
+                "betfair_win_sp": race_form["betfair_win_sp"].iloc[0],
+                "official_rating": race_form["official_rating"].iloc[0],
                 "collateral_form_data": [],
             }
 
             for _, row in collateral.iterrows():
                 collateral_form = {
-                    "official_rating": int(row["official_rating"]),
+                    "official_rating": row["official_rating"],
                     "finishing_position": row["finishing_position"],
-                    "total_distance_beaten": float(row["total_distance_beaten"]),
-                    "betfair_win_sp": float(row["betfair_win_sp"]),
-                    "rating": int(row["rating"]),
-                    "speed_figure": int(row["speed_figure"]),
-                    "horse_id": int(row["horse_id"]),
-                    "unique_id": str(row["unique_id"]),
-                    "race_id": int(row["race_id"]),
-                    "race_time": row["race_time"].isoformat(),
-                    "race_date": row["race_date"].isoformat(),
+                    "total_distance_beaten": row["total_distance_beaten"],
+                    "betfair_win_sp": row["betfair_win_sp"],
+                    "rating": row["rating"],
+                    "speed_figure": row["speed_figure"],
+                    "horse_id": row["horse_id"],
+                    "unique_id": row["unique_id"],
+                    "race_id": row["race_id"],
+                    "race_time": row["race_time"],
+                    "race_date": row["race_date"],
                     "race_type": row["race_type"],
-                    "race_class": int(row["race_class"]),
+                    "race_class": row["race_class"],
                     "distance": row["distance"],
                     "conditions": row["conditions"],
                     "going": row["going"],
-                    "number_of_runners": int(row["number_of_runners"]),
+                    "number_of_runners": row["number_of_runners"],
                     "surface": row["surface"],
                     "main_race_comment": row["main_race_comment"],
                     "tf_comment": row["tf_comment"],
