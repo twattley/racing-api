@@ -54,7 +54,7 @@ class CollateralService(BaseService):
         ].fillna(0)
 
         transformed_data = transformed_data.sort_values(
-            by=["distance_difference", "horse_id"], ascending=False
+            by=["distance_difference", "horse_id"], ascending=[True, False]
         ).reset_index(drop=True)
 
         horse_collateral_data = []
