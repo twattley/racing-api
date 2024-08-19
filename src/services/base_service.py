@@ -5,6 +5,35 @@ import pandas as pd
 
 
 class BaseService:
+    IRISH_COURSES = [
+        "Ballinrobe",
+        "Bellewstown",
+        "Clonmel",
+        "Cork",
+        "Curragh",
+        "Down Royal",
+        "Downpatrick",
+        "Dundalk",
+        "Fairyhouse",
+        "Galway",
+        "Gowran Park",
+        "Kilbeggan",
+        "Killarney",
+        "Laytown",
+        "Leopardstown",
+        "Limerick",
+        "Listowel",
+        "Naas",
+        "Navan",
+        "Punchestown",
+        "Roscommon",
+        "Sligo",
+        "Thurles",
+        "Tipperary",
+        "Tramore",
+        "Wexford",
+    ]
+
     def __init__(self):
         pass
 
@@ -18,7 +47,11 @@ class BaseService:
         data = data.assign(
             race_class=data["race_class"].fillna(0).astype(int).replace(0, None)
         )
-        grouped = data.groupby("course_id")
+
+        # flat_races = data[data["race_type"] == "Flat"]
+        uk_races = data[~data["course"].isin(self.IRISH_COURSES)]
+
+        grouped = uk_races.groupby("course_id")
         courses = []
 
         for course_id, group in grouped:
