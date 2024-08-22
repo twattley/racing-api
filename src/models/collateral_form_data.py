@@ -37,4 +37,7 @@ class HorseCollateralData(BaseEntity):
 
 
 class CollateralFormResponse(BaseEntity):
+    average_collateral_rating: int
+    important_result_count: int
+    valid_collateral_performance_count: int
     horse_collateral_data: List[HorseCollateralData]

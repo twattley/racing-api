@@ -1,4 +1,6 @@
 from fastapi import Depends
+import numpy as np
+import pandas as pd
 
 from ..repository.collateral_repository import (
     CollateralRepository,
@@ -58,6 +60,8 @@ class CollateralService(BaseService):
         ).reset_index(drop=True)
 
         horse_collateral_data = []
+        all_valid_ratings = []
+        all_important_results = []
 
         for horse in transformed_data["horse_name"].unique():
             horse_data = transformed_data[transformed_data["horse_name"] == horse]
@@ -67,6 +71,23 @@ class CollateralService(BaseService):
             if collateral.empty:
                 continue
 
+            valid_ratings = collateral[collateral["rating"] > 30]["rating"]
+            all_valid_ratings.extend(valid_ratings)
+
+            important_results = (
+                (collateral["finishing_position"].isin(["1", "2"]))
+                | (collateral["total_distance_beaten"].astype(float) < 2)
+                | (
+                    (collateral["finishing_position"].isin(["1", "2", "3"]))
+                    & (collateral["number_of_runners"].astype(int) >= 12)
+                )
+                | (
+                    (collateral["finishing_position"].isin(["1", "2", "3", "4"]))
+                    & (collateral["number_of_runners"].astype(int) >= 16)
+                )
+            )
+
+            all_important_results.append(important_results)
             horse_data = {
                 "horse_id": race_form["horse_id"].iloc[0],
                 "horse_name": race_form["horse_name"].iloc[0],
@@ -104,7 +125,21 @@ class CollateralService(BaseService):
 
             horse_collateral_data.append(horse_data)
 
-        response = {"horse_collateral_data": horse_collateral_data}
+        important_result_count = np.sum(
+            [results.sum() for results in all_important_results]
+        )
+
+        average_rating = (
+            round(pd.Series(all_valid_ratings).mean()) if all_valid_ratings else 0
+        )
+        valid_performance_count = len(all_valid_ratings)
+
+        response = {
+            "average_collateral_rating": average_rating,
+            "valid_collateral_performance_count": valid_performance_count,
+            "important_result_count": int(important_result_count),
+            "horse_collateral_data": horse_collateral_data,
+        }
         return self.sanitize_nan(response)
 
 
