@@ -90,10 +90,9 @@ class TodaysPerformanceDataResponse(BaseEntity):
     number_of_runs: Optional[int]
     todays_betfair_win_sp: Optional[float]
     todays_betfair_place_sp: Optional[float]
+    todays_simulated_price: Optional[float]
     todays_official_rating: Optional[int]
     todays_days_since_last_ran: Optional[int]
-    todays_figure_visibility: Optional[bool]
-    todays_variance_visibility: Optional[bool]
     performance_data: List[TodaysHorseFormData]
 
 

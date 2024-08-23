@@ -285,64 +285,6 @@ class TransformationService:
         return data
 
     @staticmethod
-    def _set_figure_visibility(data: pd.DataFrame, window=4, threshold=5):
-        data = data.sort_values(by=["race_time"])
-
-        data["upper_envelope"] = (
-            data["rating"].rolling(window=window, min_periods=1).max()
-        )
-
-        data["within_threshold"] = data["rating"] >= (
-            data["upper_envelope"] - threshold
-        )
-
-        horses_within_threshold = data.groupby("horse_name")[
-            "within_threshold"
-        ].transform("any")
-
-        data["figure_visibility"] = horses_within_threshold
-
-        return data
-
-    @staticmethod
-    def _set_variance_visibility(data: pd.DataFrame) -> pd.DataFrame:
-        def calculate_cv_with_exclusions(group):
-            num_runs = len(group)
-            if num_runs > 1:
-                mean = group["rating"].mean()
-                std = group["rating"].std()
-                poor_performance = group["rating"] < (mean - std)
-
-                if num_runs <= 8:
-                    num_exclusions = 1
-                else:
-                    num_exclusions = 2
-
-                for _ in range(num_exclusions):
-                    if poor_performance.any():
-                        index_to_exclude = poor_performance.idxmax()
-                        group = group.drop(index_to_exclude)
-                        poor_performance = group["rating"] < (
-                            group["rating"].mean() - group["rating"].std()
-                        )
-
-                mean = group["rating"].mean()
-                std = group["rating"].std()
-
-            cv = std / mean if mean != 0 else float("inf")
-            return cv
-
-        cv_values = data.groupby("horse_name", group_keys=False).apply(
-            calculate_cv_with_exclusions
-        )
-
-        variance_visibility = cv_values <= 0.3
-
-        data["variance_visibility"] = data["horse_name"].map(variance_visibility)
-
-        return data
-
-    @staticmethod
     def calculate(data: pd.DataFrame, date: str) -> pd.DataFrame:
         data = (
             TransformationService._create_tmp_vars(data, date)
@@ -358,8 +300,6 @@ class TransformationService:
             .pipe(TransformationService._calculate_rating_diffs)
             .pipe(TransformationService._round_price_data)
             .pipe(TransformationService._cleanup_temp_vars)
-            .pipe(TransformationService._set_figure_visibility)
-            .pipe(TransformationService._set_variance_visibility)
             .pipe(TransformationService._calculate_ratings_bands)
             .pipe(TransformationService._create_class_diff)
             .pipe(TransformationService._create_rating_range_diff)
