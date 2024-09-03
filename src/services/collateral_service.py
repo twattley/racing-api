@@ -61,6 +61,7 @@ class CollateralService(BaseService):
 
         horse_collateral_data = []
         all_valid_ratings = []
+        number_of_runs = []
         all_important_results = []
 
         for horse in transformed_data["horse_name"].unique():
@@ -73,6 +74,7 @@ class CollateralService(BaseService):
 
             valid_ratings = collateral[collateral["rating"] > 30]["rating"]
             all_valid_ratings.extend(valid_ratings)
+            number_of_runs.extend(collateral["rating"])
 
             important_results = (
                 (collateral["finishing_position"].isin(["1", "2"]))
@@ -132,7 +134,7 @@ class CollateralService(BaseService):
         average_rating = (
             round(pd.Series(all_valid_ratings).mean()) if all_valid_ratings else 0
         )
-        valid_performance_count = len(all_valid_ratings)
+        valid_performance_count = len(number_of_runs)
 
         response = {
             "average_collateral_rating": average_rating,

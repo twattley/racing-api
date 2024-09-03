@@ -126,18 +126,22 @@ class TodaysService(BaseService):
             "horse_id"
         ].unique()
 
-        win_sp = dict(zip(win_and_place["horse_id"], win_and_place["betfair_win_sp"]))
-        place_sp = dict(
-            zip(win_and_place["horse_id"], win_and_place["betfair_place_sp"])
+        # Filter out nan values before creating dictionaries
+        valid_data = win_and_place.dropna(
+            subset=["horse_id", "betfair_win_sp", "betfair_place_sp"]
         )
 
+        win_sp = dict(zip(valid_data["horse_id"], valid_data["betfair_win_sp"]))
+        place_sp = dict(zip(valid_data["horse_id"], valid_data["betfair_place_sp"]))
         todays_data.loc[todays_data["data_type"] == "today", "betfair_win_sp"] = (
-            todays_data.loc[todays_data["data_type"] == "today", "horse_id"].map(win_sp)
+            todays_data.loc[todays_data["data_type"] == "today", "horse_id"]
+            .map(win_sp)
+            .fillna(todays_data["betfair_win_sp"])
         )
         todays_data.loc[todays_data["data_type"] == "today", "betfair_place_sp"] = (
-            todays_data.loc[
-                todays_data["data_type"] == "today", "horse_id"
-            ].map(place_sp)
+            todays_data.loc[todays_data["data_type"] == "today", "horse_id"]
+            .map(place_sp)
+            .fillna(todays_data["betfair_place_sp"])
         )
 
         return todays_data[todays_data["horse_id"].isin(runners)]

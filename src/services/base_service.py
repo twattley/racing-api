@@ -141,6 +141,19 @@ class BaseService:
             headgear=data["headgear"].replace("None", None),
             official_rating=data["official_rating"].fillna(0).astype("Int64"),
         )
+        data = data.assign(
+            official_rating_diff=np.select(
+                [
+                    data["official_rating"] == 0,
+                    data["official_rating"] != 0,
+                ],
+                [
+                    0,
+                    data["rating"] - data["official_rating"],
+                ],
+                default=0,
+            )
+        )
 
         today = data[data["data_type"] == "today"]
         historical = data[data["data_type"] == "historical"]
@@ -187,7 +200,7 @@ class BaseService:
             ascending=[True, True, False],
         )
 
-        combined_data = simulator.run_simulation(combined_data)
+        # combined_data = simulator.run_simulation(combined_data)
 
         grouped = combined_data.groupby(["horse_id", "horse_name"], sort=False)
 
@@ -218,7 +231,7 @@ class BaseService:
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
-                    "todays_simulated_price": group["simulated_price"].iloc[0],
+                    # "todays_simulated_price": group["simulated_price"].iloc[0],
                     "todays_official_rating": group["todays_official_rating"].iloc[0],
                     "todays_days_since_last_ran": None
                     if pd.isna(group["todays_days_since_last_ran"].iloc[0])

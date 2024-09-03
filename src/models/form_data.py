@@ -77,6 +77,7 @@ class TodaysHorseFormData(BaseEntity):
     distance_diff: Optional[float]
     class_diff: Optional[str]
     rating_range_diff: Optional[str]
+    official_rating_diff: Optional[int]
 
 
 class TodaysPerformanceDataResponse(BaseEntity):
@@ -90,7 +91,7 @@ class TodaysPerformanceDataResponse(BaseEntity):
     number_of_runs: Optional[int]
     todays_betfair_win_sp: Optional[float]
     todays_betfair_place_sp: Optional[float]
-    todays_simulated_price: Optional[float]
+    # todays_simulated_price: Optional[float]
     todays_official_rating: Optional[int]
     todays_days_since_last_ran: Optional[int]
     performance_data: List[TodaysHorseFormData]

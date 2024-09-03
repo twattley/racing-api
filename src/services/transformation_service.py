@@ -206,9 +206,11 @@ class TransformationService:
                 data["finishing_position"], errors="coerce"
             )
         )
-        second_place_distance = data[data["finishing_position_numeric"] == 2][
+
+        # Handle dead heats: find the minimum non-zero distance beaten
+        min_non_zero_distance = data[data["total_distance_beaten"] > 0][
             "total_distance_beaten"
-        ].iloc[0]
+        ].min()
 
         data = data.assign(
             total_distance_beaten=np.where(
@@ -220,10 +222,11 @@ class TransformationService:
         data = data.assign(
             total_distance_beaten=np.where(
                 data["finishing_position_numeric"] == 1,
-                -second_place_distance,
+                -min_non_zero_distance,
                 data["total_distance_beaten"],
             )
         ).drop(columns=["finishing_position_numeric"])
+
         return data.sort_values(by=["total_distance_beaten"])
 
     @staticmethod
