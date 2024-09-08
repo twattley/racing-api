@@ -1,3 +1,4 @@
 *.pyc
 .env
 src/cache/*
+.python-venv
