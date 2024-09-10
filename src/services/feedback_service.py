@@ -1,20 +1,8 @@
-from datetime import datetime, timedelta
-
-import pandas as pd
 from fastapi import Depends
 
-from ..utils.cache_utils import save_todays_prices
-
 from ..repository.feedback_repository import FeedbackRepository, get_feedback_repository
-from ..utils.json_utils import read_json, write_json
 from .base_service import BaseService
 from .transformation_service import TransformationService
-
-FILTER_WEEKS = 52
-FILTER_YEARS = 3
-FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
-
-CACHE_DIR = "./src/cache"
 
 
 class FeedbackService(BaseService):
@@ -26,31 +14,19 @@ class FeedbackService(BaseService):
         self.feedback_repository = feedback_repository
         self.transformation_service = transformation_service
 
-    @staticmethod
-    def filter_dataframe_by_date(data: pd.DataFrame, date_filter: str) -> pd.DataFrame:
-        return data[data["race_time"] > date_filter].copy()
-
-    async def get_todays_races(self, date: str):
-        data = await self.feedback_repository.get_todays_races(date)
+    async def get_todays_races(self):
+        data = await self.feedback_repository.get_todays_races()
         return self.format_todays_races(data)
 
-    async def get_race_by_id(self, date: str, race_id: int):
-        date_filter = (
-            datetime.strptime(date, "%Y-%m-%d") - timedelta(weeks=FILTER_PERIOD)
-        ).strftime("%Y-%m-%d")
-        data = await self.feedback_repository.get_race_by_id(date, race_id)
-
-        save_todays_prices(data, f"{CACHE_DIR}/feedback_prices.json")
+    async def get_race_by_id(self, race_id: int):
+        data = await self.feedback_repository.get_race_by_id(race_id)
         return self.format_todays_form_data(
             data,
-            date,
-            date_filter,
-            FeedbackService.filter_dataframe_by_date,
             self.transformation_service.calculate,
         )
 
-    async def get_race_result_by_id(self, date: str, race_id: int):
-        data = await self.feedback_repository.get_race_result_by_id(date, race_id)
+    async def get_race_result_by_id(self, race_id: int):
+        data = await self.feedback_repository.get_race_result_by_id(race_id)
         data = data.pipe(self.transformation_service.amend_finishing_position)
         data = data.pipe(
             self.convert_string_columns,
@@ -126,12 +102,12 @@ class FeedbackService(BaseService):
         race_data["race_results"] = horse_data_list
         return [race_data]
 
-    async def get_current_date_today(self) -> list[dict]:
-        return read_json(f"{CACHE_DIR}/feedback_date.json")
+    async def get_current_date_today(self):
+        data = await self.feedback_repository.get_current_date_today()
+        return data
 
     async def store_current_date_today(self, date: str):
-        write_json({"today_date": date}, "./src/cache/feedback_date.json")
-        return read_json(f"{CACHE_DIR}/feedback_date.json")
+        await self.feedback_repository.store_current_date_today(date)
 
 
 def get_feedback_service(

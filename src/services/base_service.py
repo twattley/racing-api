@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Callable
 
 import numpy as np
@@ -5,6 +6,10 @@ import pandas as pd
 from .simulator import Simulate
 
 simulator = Simulate()
+
+FILTER_WEEKS = 52
+FILTER_YEARS = 3
+FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
 
 
 class BaseService:
@@ -90,14 +95,12 @@ class BaseService:
     def format_todays_form_data(
         self,
         data: pd.DataFrame,
-        date: str,
-        date_filter: str,
-        filter_function: Callable,
         transformation_function: Callable,
     ) -> list[dict]:
-        data = data.pipe(filter_function, date_filter).pipe(
-            transformation_function, date
-        )
+        date = data[data["data_type"] == "today"]["race_date"].iloc[0]
+        date_filter = date - timedelta(weeks=FILTER_PERIOD)
+        data = data[data["race_date"] > date_filter]
+        data = data.pipe(transformation_function, date)
         data.pipe(
             self.convert_string_columns,
             [

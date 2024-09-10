@@ -10,7 +10,6 @@ from src.controllers.feedback_api import router as FeedbackAPIRouter
 from src.controllers.todays_api import router as TodaysAPIRouter
 from src.controllers.collateral_api import router as CollateralAPIRouter
 from src.middlewares.db_session import DBSessionMiddleware
-from src.utils.cache_utils import construct_cache_data
 
 API_PREFIX_V1 = "/racing-api/api/v1"
 
@@ -46,8 +45,6 @@ def create_app() -> FastAPI:
 
 
 async def main(init_cache):
-    if init_cache == "--init-cache":
-        construct_cache_data()
     return create_app()
 
 
