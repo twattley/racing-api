@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Callable
 
 import numpy as np
@@ -5,6 +6,10 @@ import pandas as pd
 from .simulator import Simulate
 
 simulator = Simulate()
+
+FILTER_WEEKS = 52
+FILTER_YEARS = 3
+FILTER_PERIOD = FILTER_WEEKS * FILTER_YEARS
 
 
 class BaseService:
@@ -90,14 +95,12 @@ class BaseService:
     def format_todays_form_data(
         self,
         data: pd.DataFrame,
-        date: str,
-        date_filter: str,
-        filter_function: Callable,
         transformation_function: Callable,
     ) -> list[dict]:
-        data = data.pipe(filter_function, date_filter).pipe(
-            transformation_function, date
-        )
+        date = data[data["data_type"] == "today"]["race_date"].iloc[0]
+        date_filter = date - timedelta(weeks=FILTER_PERIOD)
+        data = data[data["race_date"] > date_filter]
+        data = data.pipe(transformation_function, date)
         data.pipe(
             self.convert_string_columns,
             [
@@ -169,6 +172,7 @@ class BaseService:
             columns={
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
+                "price_change": "todays_price_change",
                 "days_since_last_ran": "todays_days_since_last_ran",
                 "first_places": "todays_first_places",
                 "second_places": "todays_second_places",
@@ -183,6 +187,7 @@ class BaseService:
                     "horse_id",
                     "todays_betfair_win_sp",
                     "todays_betfair_place_sp",
+                    "todays_price_change",
                     "todays_official_rating",
                     "todays_horse_age",
                     "todays_days_since_last_ran",
@@ -231,7 +236,7 @@ class BaseService:
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
-                    # "todays_simulated_price": group["simulated_price"].iloc[0],
+                    "todays_price_change": group["todays_price_change"].iloc[0],
                     "todays_official_rating": group["todays_official_rating"].iloc[0],
                     "todays_days_since_last_ran": None
                     if pd.isna(group["todays_days_since_last_ran"].iloc[0])
@@ -246,6 +251,7 @@ class BaseService:
                             "fourth_places",
                             "todays_betfair_win_sp",
                             "todays_betfair_place_sp",
+                            "todays_price_change",
                         ]
                     ).to_dict(orient="records"),
                 }

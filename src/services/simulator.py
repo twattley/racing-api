@@ -39,7 +39,6 @@ class Simulate:
 
         for horse in horses_with_few_runs:
             horse_data_single = horse_data[horse_data["horse_id"] == horse]
-            print(f"Processing horse ID: {horse}")
 
             current_runs = horse_data_single["number_of_runs"].iloc[0]
             runs_to_add = 15 - current_runs
