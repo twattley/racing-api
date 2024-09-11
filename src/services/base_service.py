@@ -143,6 +143,7 @@ class BaseService:
         data = data.assign(
             headgear=data["headgear"].replace("None", None),
             official_rating=data["official_rating"].fillna(0).astype("Int64"),
+            price_change=data["price_change"].fillna(0).round(0).astype(int),
         )
         data = data.assign(
             official_rating_diff=np.select(
