@@ -172,6 +172,7 @@ class BaseService:
             columns={
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
+                "price_change": "todays_price_change",
                 "days_since_last_ran": "todays_days_since_last_ran",
                 "first_places": "todays_first_places",
                 "second_places": "todays_second_places",
@@ -186,6 +187,7 @@ class BaseService:
                     "horse_id",
                     "todays_betfair_win_sp",
                     "todays_betfair_place_sp",
+                    "todays_price_change",
                     "todays_official_rating",
                     "todays_horse_age",
                     "todays_days_since_last_ran",
@@ -234,7 +236,7 @@ class BaseService:
                     "number_of_runs": group["number_of_runs"].iloc[0],
                     "todays_betfair_win_sp": group["todays_betfair_win_sp"].iloc[0],
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
-                    # "todays_simulated_price": group["simulated_price"].iloc[0],
+                    "todays_price_change": group["todays_price_change"].iloc[0],
                     "todays_official_rating": group["todays_official_rating"].iloc[0],
                     "todays_days_since_last_ran": None
                     if pd.isna(group["todays_days_since_last_ran"].iloc[0])
@@ -249,6 +251,7 @@ class BaseService:
                             "fourth_places",
                             "todays_betfair_win_sp",
                             "todays_betfair_place_sp",
+                            "todays_price_change",
                         ]
                     ).to_dict(orient="records"),
                 }

@@ -1,36 +1,40 @@
-from datetime import datetime
-
 import pandas as pd
 from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..helpers.session_manager import get_current_session
-from .base_repository import BaseRepository
 
 
-class TodaysRepository(BaseRepository):
+class TodaysRepository:
     def __init__(self, session: AsyncSession):
-        super().__init__(session)
+        self.session = session
 
     async def get_todays_races(self):
         result = await self.session.execute(
-            text("SELECT * from public.select_race_date_race_times(:date)"),
-            {"date": datetime.now().date()},
+            text(
+                """
+                SELECT DISTINCT ON (course, race_time) *
+                FROM  public.todays_performance_data_mat_vw
+                WHERE data_type = 'today'
+                ORDER BY course, race_time
+                """
+            ),
         )
         return pd.DataFrame(result.fetchall())
 
-    async def get_todays_betfair_ids(self):
+    async def get_race_by_id(self, race_id: int):
         result = await self.session.execute(
-            text(
-                """
-            SELECT 
-                id as horse_id, 
-                name as horse_name, 
-                bf_id as todays_bf_unique_id 
-            FROM public.bf_horse
-            """
-            )
+            text("""
+                SELECT * 
+                    FROM public.todays_performance_data_mat_vw 
+                    WHERE horse_id IN (
+                        SELECT horse_id 
+                        FROM public.todays_performance_data_mat_vw 
+                        WHERE race_id = :race_id
+                    )
+                 """),
+            {"race_id": race_id},
         )
         return pd.DataFrame(result.fetchall())
 

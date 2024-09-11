@@ -7,10 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 
 from ..helpers.session_manager import get_current_session
-from ..repository.base_repository import BaseRepository
 
 
-class FeedbackRepository(BaseRepository):
+class FeedbackRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
