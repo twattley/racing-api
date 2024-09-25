@@ -38,11 +38,11 @@ class TodaysHorseFormData(BaseEntity):
     tf_comment: Optional[str]
     tfr_view: Optional[str]
     race_id: int
-    jockey_id: int
-    trainer_id: int
-    owner_id: int
-    sire_id: int
-    dam_id: int
+    jockey_id: Optional[int]
+    trainer_id: Optional[int]
+    owner_id: Optional[int]
+    sire_id: Optional[int]
+    dam_id: Optional[int]
     unique_id: str
     race_time: datetime
     race_date: date
@@ -70,10 +70,10 @@ class TodaysHorseFormData(BaseEntity):
     meeting_id: str
     course_id: int
     course: str
-    dam: str
-    sire: str
-    trainer: str
-    jockey: str
+    dam: Optional[str]
+    sire: Optional[str]
+    trainer: Optional[str]
+    jockey: Optional[str]
     data_type: str
     distance_diff: Optional[float]
     class_diff: Optional[str]
@@ -84,6 +84,7 @@ class TodaysHorseFormData(BaseEntity):
 class TodaysPerformanceDataResponse(BaseEntity):
     horse_name: str
     horse_id: int
+    todays_horse_number: int
     todays_horse_age: int
     todays_first_places: Optional[int]
     todays_second_places: Optional[int]

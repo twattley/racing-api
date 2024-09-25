@@ -9,6 +9,7 @@ from starlette_context.middleware import RawContextMiddleware
 from src.controllers.feedback_api import router as FeedbackAPIRouter
 from src.controllers.todays_api import router as TodaysAPIRouter
 from src.controllers.collateral_api import router as CollateralAPIRouter
+from src.controllers.betting_api import router as BettingAPIRouter
 from src.middlewares.db_session import DBSessionMiddleware
 
 API_PREFIX_V1 = "/racing-api/api/v1"
@@ -41,13 +42,14 @@ def create_app() -> FastAPI:
     app.include_router(FeedbackAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(TodaysAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(CollateralAPIRouter, prefix=API_PREFIX_V1)
+    app.include_router(BettingAPIRouter, prefix=API_PREFIX_V1)
     return app
 
 
-async def main(init_cache):
+async def main():
     return create_app()
 
 
 if __name__ == "__main__":
-    app = asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else None))
+    app = asyncio.run(main())
     uvicorn.run(app, host="0.0.0.0", port=8000)

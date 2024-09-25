@@ -159,7 +159,10 @@ class BaseService:
             )
         )
 
-        today = data[data["data_type"] == "today"]
+        today = data[data["data_type"] == "today"].sort_values(
+            by=["race_id", "betfair_win_sp"], ascending=[True, True]
+        )
+        today["horse_number"] = today.groupby("race_id").cumcount() + 1
         historical = data[data["data_type"] == "historical"]
 
         race_details = today.drop_duplicates(subset=["unique_id"]).to_dict(
@@ -171,6 +174,7 @@ class BaseService:
             todays_official_rating=today["official_rating"],
         ).rename(
             columns={
+                "horse_number": "todays_horse_number",
                 "betfair_win_sp": "todays_betfair_win_sp",
                 "betfair_place_sp": "todays_betfair_place_sp",
                 "price_change": "todays_price_change",
@@ -186,6 +190,7 @@ class BaseService:
             today[
                 [
                     "horse_id",
+                    "todays_horse_number",
                     "todays_betfair_win_sp",
                     "todays_betfair_place_sp",
                     "todays_price_change",
@@ -229,6 +234,7 @@ class BaseService:
                 {
                     "horse_name": name,
                     "horse_id": horse_id,
+                    "todays_horse_number": group["todays_horse_number"].iloc[0],
                     "todays_horse_age": group["todays_horse_age"].iloc[0],
                     "todays_first_places": group["todays_first_places"].iloc[0],
                     "todays_second_places": group["todays_second_places"].iloc[0],
