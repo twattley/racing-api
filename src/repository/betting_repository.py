@@ -14,6 +14,7 @@ class BettingRepository:
     async def store_betting_selections(self, selections: BettingSelections) -> dict:
         # change racedate to date type
         race_date = datetime.strptime(selections.race_date, "%Y-%m-%d").date()
+        created_at = datetime.now()
         race_id = selections.race_id
         for selection in selections.selections:
             horse_id = selection.horse_id
@@ -21,16 +22,19 @@ class BettingRepository:
 
             await self.session.execute(
                 text(
-                    "INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type) VALUES (:race_date, :race_id, :horse_id, :betting_type)"
+                    "INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type, created_at) VALUES (:race_date, :race_id, :horse_id, :betting_type, :created_at)"
                 ),
                 {
                     "race_date": race_date,
                     "race_id": race_id,
                     "horse_id": horse_id,
                     "betting_type": betting_type,
+                    "created_at": created_at,
                 },
             )
-        await self.session.commit()  # Don't forget to commit the transaction
+        await self.session.commit()
+        await self.session.execute(text("CALL betting.update_selections_info()"))
+        await self.session.commit()
         return {
             "message": f"Stored {len(selections.selections)} selections for race {selections.race_id}"
         }
@@ -38,11 +42,3 @@ class BettingRepository:
 
 def get_betting_repository(session: AsyncSession = Depends(get_current_session)):
     return BettingRepository(session)
-
-
-"""SELECT * FROM betting.selections bs
-LEFT JOIN public.unioned_performance_data pd 
-on pd.race_id = bs.race_id 
-and pd.horse_id = bs.horse_id
-and pd.race_date = bs.race_date
-"""
