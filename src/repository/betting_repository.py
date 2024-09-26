@@ -1,4 +1,5 @@
 from datetime import datetime
+import pandas as pd
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from fastapi import Depends
@@ -12,9 +13,8 @@ class BettingRepository:
         self.session = session
 
     async def store_betting_selections(self, selections: BettingSelections) -> dict:
-        # change racedate to date type
         race_date = datetime.strptime(selections.race_date, "%Y-%m-%d").date()
-        created_at = datetime.now()
+        await self.session.execute(text("TRUNCATE TABLE betting.selections"))
         race_id = selections.race_id
         for selection in selections.selections:
             horse_id = selection.horse_id
@@ -22,14 +22,17 @@ class BettingRepository:
 
             await self.session.execute(
                 text(
-                    "INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type, created_at) VALUES (:race_date, :race_id, :horse_id, :betting_type, :created_at)"
+                    """
+                    INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type, created_at) 
+                    VALUES (:race_date, :race_id, :horse_id, :betting_type, :created_at)
+                    """
                 ),
                 {
                     "race_date": race_date,
                     "race_id": race_id,
                     "horse_id": horse_id,
                     "betting_type": betting_type,
-                    "created_at": created_at,
+                    "created_at": datetime.now(),
                 },
             )
         await self.session.commit()
@@ -38,6 +41,12 @@ class BettingRepository:
         return {
             "message": f"Stored {len(selections.selections)} selections for race {selections.race_id}"
         }
+
+    async def get_betting_selections_analysis(self):
+        result = await self.session.execute(
+            text("SELECT * FROM betting.selections_info")
+        )
+        return pd.DataFrame(result.fetchall())
 
 
 def get_betting_repository(session: AsyncSession = Depends(get_current_session)):

@@ -21,12 +21,13 @@ class BettingService(BaseService):
     async def store_betting_selections(self, selections: BettingSelections):
         await self.betting_repository.store_betting_selections(selections)
 
-    async def get_betting_selections(self, race_id: int):
-        data = await self.betting_repository.get_betting_selections(race_id)
-        return data.pipe(BettingService._calculate_dutch_sum)
+    async def get_betting_selections_analysis(self):
+        data = await self.betting_repository.get_betting_selections_analysis()
+        print(data.info())
+        return data.pipe(self._calculate_dutch_sum)
 
-    @staticmethod
-    def _calculate_dutch_sum(data: pd.DataFrame) -> pd.DataFrame:
+    def _calculate_dutch_sum(self, data: pd.DataFrame) -> pd.DataFrame:
+        data["betfair_win_sp"] = data["betfair_win_sp"].astype(float)
         data["dutch_sum"] = (
             data[data["betting_type"].str.contains("dutch", case=False)]
             .groupby(["race_id", "betting_type"])["betfair_win_sp"]
@@ -141,7 +142,24 @@ class BettingService(BaseService):
         )
         result = result.sort_values(["race_id", "betting_type"])
 
-        return result.drop_duplicates(subset=["race_id", "dutch_sum"], keep="first")
+        self.convert_integer_columns(
+            result,
+            [
+                "official_rating",
+                "ts",
+                "rpr",
+                "tfr",
+                "tfig",
+                "in_play_high",
+                "in_play_low",
+            ],
+        )
+
+        result_dict = result.drop_duplicates(
+            subset=["race_id", "dutch_sum"], keep="first"
+        ).to_dict(orient="records")
+
+        return self.sanitize_nan(result_dict)
 
 
 def get_betting_service(
