@@ -89,6 +89,7 @@ class BaseService:
         self, data: pd.DataFrame, columns: list[str]
     ) -> pd.DataFrame:
         for column in columns:
+            data[column] = pd.to_numeric(data[column], errors="coerce").fillna(0)
             data[column] = data[column].astype("Int64")
         return data
 

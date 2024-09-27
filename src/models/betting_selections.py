@@ -70,3 +70,11 @@ class BettingSelectionsAnalysis(BaseEntity):
     final_odds: Optional[float]
     adjusted_final_odds: Optional[float]
     bet_result: Optional[float]
+    running_total: Optional[float]
+    bet_number: Optional[int]
+
+
+class BettingSelectionsAnalysisResponse(BaseEntity):
+    number_of_bets: int
+    overall_total: float
+    result_dict: List[BettingSelectionsAnalysis]

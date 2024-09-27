@@ -23,7 +23,6 @@ class BettingService(BaseService):
 
     async def get_betting_selections_analysis(self):
         data = await self.betting_repository.get_betting_selections_analysis()
-        print(data.info())
         return data.pipe(self._calculate_dutch_sum)
 
     def _calculate_dutch_sum(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -140,7 +139,14 @@ class BettingService(BaseService):
         result.loc[result["betting_type"] == "dutch_lay", "bet_result"] = (
             dutch_lay_results
         )
-        result = result.sort_values(["race_id", "betting_type"])
+        result["bet_result"] = result["bet_result"].astype(float)
+        result = result.sort_values(["betting_type", "created_at"])
+        result["running_total"] = result.groupby("betting_type")["bet_result"].cumsum()
+        result["overall_total"] = result["bet_result"].cumsum()
+        overall_total = result["overall_total"].iloc[-1]
+        number_of_bets = len(result)
+
+        result["official_rating"] = result["official_rating"].fillna(0).astype(int)
 
         self.convert_integer_columns(
             result,
@@ -150,16 +156,20 @@ class BettingService(BaseService):
                 "rpr",
                 "tfr",
                 "tfig",
-                "in_play_high",
-                "in_play_low",
             ],
         )
 
-        result_dict = result.drop_duplicates(
-            subset=["race_id", "dutch_sum"], keep="first"
-        ).to_dict(orient="records")
+        result = result.drop_duplicates(subset=["race_id", "dutch_sum"], keep="first")
+        result["bet_number"] = result.groupby("betting_type").cumcount() + 1
 
-        return self.sanitize_nan(result_dict)
+        result = result.sort_values(["betting_type", "created_at"])
+        result_dict = self.sanitize_nan(result.to_dict(orient="records"))
+
+        return {
+            "number_of_bets": number_of_bets,
+            "overall_total": overall_total,
+            "result_dict": result_dict,
+        }
 
 
 def get_betting_service(
