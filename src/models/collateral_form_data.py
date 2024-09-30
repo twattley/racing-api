@@ -1,6 +1,7 @@
-from .base_entity import BaseEntity
+from datetime import date, datetime
 from typing import List, Optional
-from datetime import datetime, date
+
+from .base_entity import BaseEntity
 
 
 class CollateralFormData(BaseEntity):

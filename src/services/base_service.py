@@ -3,6 +3,7 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
+
 from .simulator import Simulate
 
 simulator = Simulate()
@@ -246,9 +247,11 @@ class BaseService:
                     "todays_betfair_place_sp": group["todays_betfair_place_sp"].iloc[0],
                     "todays_price_change": group["todays_price_change"].iloc[0],
                     "todays_official_rating": group["todays_official_rating"].iloc[0],
-                    "todays_days_since_last_ran": None
-                    if pd.isna(group["todays_days_since_last_ran"].iloc[0])
-                    else int(group["todays_days_since_last_ran"].iloc[0]),
+                    "todays_days_since_last_ran": (
+                        None
+                        if pd.isna(group["todays_days_since_last_ran"].iloc[0])
+                        else int(group["todays_days_since_last_ran"].iloc[0])
+                    ),
                     "performance_data": group.drop(
                         columns=[
                             "horse_id",

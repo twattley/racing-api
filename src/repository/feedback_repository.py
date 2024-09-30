@@ -1,10 +1,10 @@
+import asyncio
 from datetime import datetime
 
 import pandas as pd
 from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-import asyncio
 
 from ..helpers.session_manager import get_current_session
 
@@ -29,7 +29,8 @@ class FeedbackRepository:
 
     async def get_race_by_id(self, race_id: int):
         result = await self.session.execute(
-            text("""
+            text(
+                """
                 SELECT * 
                     FROM public.feedback_performance_data_mat_vw 
                     WHERE horse_id IN (
@@ -37,18 +38,21 @@ class FeedbackRepository:
                         FROM public.feedback_performance_data_mat_vw 
                         WHERE race_id = :race_id
                     )
-                 """),
+                 """
+            ),
             {"race_id": race_id},
         )
         return pd.DataFrame(result.fetchall())
 
     async def get_race_result_by_id(self, race_id: int):
         result = await self.session.execute(
-            text("""
+            text(
+                """
                     SELECT * 
                         FROM public.feedback_performance_data_mat_vw 
                         WHERE race_id = :race_id
-                 """),
+                 """
+            ),
             {"race_id": race_id},
         )
         return pd.DataFrame(result.fetchall())

@@ -1,15 +1,16 @@
 import asyncio
-import sys
+import json
 
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette_context.middleware import RawContextMiddleware
 
+from src.controllers.betting_api import router as BettingAPIRouter
+from src.controllers.collateral_api import router as CollateralAPIRouter
 from src.controllers.feedback_api import router as FeedbackAPIRouter
 from src.controllers.todays_api import router as TodaysAPIRouter
-from src.controllers.collateral_api import router as CollateralAPIRouter
-from src.controllers.betting_api import router as BettingAPIRouter
+from src.helpers.sql_db import get_db
 from src.middlewares.db_session import DBSessionMiddleware
 
 API_PREFIX_V1 = "/racing-api/api/v1"
@@ -38,7 +39,6 @@ def create_app() -> FastAPI:
         ],  # Or specify just the methods you need: ['GET', 'POST', etc.]
         allow_headers=["*"],  # Or specify just the headers you need
     )
-
     app.include_router(FeedbackAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(TodaysAPIRouter, prefix=API_PREFIX_V1)
     app.include_router(CollateralAPIRouter, prefix=API_PREFIX_V1)
@@ -46,10 +46,21 @@ def create_app() -> FastAPI:
     return app
 
 
+def get_betting_session_id():
+    db = get_db()
+    data = db.fetch_data(
+        "SELECT MAX(session_id) as session_id FROM betting.selections_info"
+    )
+    session_id = data["session_id"].max()
+    with open("betting_session.json", "w") as f:
+        json.dump({"session_id": str(session_id)}, f)
+
+
 async def main():
     return create_app()
 
 
 if __name__ == "__main__":
+    get_betting_session_id()
     app = asyncio.run(main())
     uvicorn.run(app, host="0.0.0.0", port=8000)

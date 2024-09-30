@@ -1,6 +1,6 @@
 from datetime import datetime
-from fastapi import Depends
 
+from fastapi import Depends
 
 from ..repository.todays_repository import TodaysRepository, get_todays_repository
 from .base_service import BaseService

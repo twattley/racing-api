@@ -77,4 +77,6 @@ class BettingSelectionsAnalysis(BaseEntity):
 class BettingSelectionsAnalysisResponse(BaseEntity):
     number_of_bets: int
     overall_total: float
+    session_number_of_bets: int
+    session_overall_total: float
     result_dict: List[BettingSelectionsAnalysis]

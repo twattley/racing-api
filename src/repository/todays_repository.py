@@ -25,7 +25,8 @@ class TodaysRepository:
 
     async def get_race_by_id(self, race_id: int):
         result = await self.session.execute(
-            text("""
+            text(
+                """
                 SELECT * 
                     FROM public.todays_performance_data_mat_vw 
                     WHERE horse_id IN (
@@ -33,7 +34,8 @@ class TodaysRepository:
                         FROM public.todays_performance_data_mat_vw 
                         WHERE race_id = :race_id
                     )
-                 """),
+                 """
+            ),
             {"race_id": race_id},
         )
         return pd.DataFrame(result.fetchall())

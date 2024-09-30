@@ -1,30 +1,32 @@
 from datetime import datetime
-import pandas as pd
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
-from fastapi import Depends
 
-from ..models.betting_selections import BettingSelections
+import pandas as pd
+from fastapi import Depends
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..helpers.session_manager import get_current_session
+from ..models.betting_selections import BettingSelections
 
 
 class BettingRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def store_betting_selections(self, selections: BettingSelections) -> dict:
+    async def store_betting_selections(
+        self, selections: BettingSelections, session_id: int
+    ) -> dict:
         race_date = datetime.strptime(selections.race_date, "%Y-%m-%d").date()
         await self.session.execute(text("TRUNCATE TABLE betting.selections"))
         race_id = selections.race_id
         for selection in selections.selections:
             horse_id = selection.horse_id
             betting_type = selection.bet_type
-
             await self.session.execute(
                 text(
                     """
-                    INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type, created_at) 
-                    VALUES (:race_date, :race_id, :horse_id, :betting_type, :created_at)
+                    INSERT INTO betting.selections (race_date, race_id, horse_id, betting_type, session_id, created_at) 
+                    VALUES (:race_date, :race_id, :horse_id, :betting_type, :session_id, :created_at)
                     """
                 ),
                 {
@@ -32,6 +34,7 @@ class BettingRepository:
                     "race_id": race_id,
                     "horse_id": horse_id,
                     "betting_type": betting_type,
+                    "session_id": session_id,
                     "created_at": datetime.now(),
                 },
             )

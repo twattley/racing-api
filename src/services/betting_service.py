@@ -1,13 +1,12 @@
-from fastapi import Depends
-import pandas as pd
+import json
+
 import numpy as np
+import pandas as pd
+from fastapi import Depends
 
 from src.models.betting_selections import BettingSelections
 
-from ..repository.betting_repository import (
-    BettingRepository,
-    get_betting_repository,
-)
+from ..repository.betting_repository import BettingRepository, get_betting_repository
 from .base_service import BaseService
 
 
@@ -17,13 +16,22 @@ class BettingService(BaseService):
         betting_repository: BettingRepository,
     ):
         self.betting_repository = betting_repository
+        self._get_betting_session_id()
+
+    def _get_betting_session_id(self):
+        with open("betting_session.json", "r") as f:
+            session_id = json.load(f)["session_id"]
+            self.betting_session_id = int(session_id) + 1
 
     async def store_betting_selections(self, selections: BettingSelections):
-        await self.betting_repository.store_betting_selections(selections)
+        await self.betting_repository.store_betting_selections(
+            selections, self.betting_session_id
+        )
 
     async def get_betting_selections_analysis(self):
         data = await self.betting_repository.get_betting_selections_analysis()
-        return data.pipe(self._calculate_dutch_sum)
+        data = data.pipe(self._calculate_dutch_sum)
+        return data
 
     def _calculate_dutch_sum(self, data: pd.DataFrame) -> pd.DataFrame:
         data["betfair_win_sp"] = data["betfair_win_sp"].astype(float)
@@ -32,7 +40,6 @@ class BettingService(BaseService):
             .groupby(["race_id", "betting_type"])["betfair_win_sp"]
             .transform(lambda x: (100.0 / x).sum())
         )
-
         data["calculated_odds"] = np.where(
             data["betting_type"].str.contains("dutch", case=False),
             100.0 / data["dutch_sum"],
@@ -43,9 +50,9 @@ class BettingService(BaseService):
             data.groupby(["race_id", "betting_type"])
             .agg(
                 {
-                    "calculated_odds": lambda x: x.max()
-                    if "dutch" in x.name.lower()
-                    else x.iloc[0],
+                    "calculated_odds": lambda x: (
+                        x.max() if "dutch" in x.name.lower() else x.iloc[0]
+                    ),
                     "betfair_win_sp": "first",
                 }
             )
@@ -53,11 +60,9 @@ class BettingService(BaseService):
             .reset_index()
         )
         grouped.columns = ["race_id", "betting_type", "final_odds", "betfair_win_sp"]
-
         result = data.merge(
             grouped, on=["race_id", "betting_type"], suffixes=("", "_grouped")
         )
-
         result["adjusted_final_odds"] = np.select(
             [
                 result["betting_type"].str.contains("lay", case=False),
@@ -141,10 +146,6 @@ class BettingService(BaseService):
         )
         result["bet_result"] = result["bet_result"].astype(float)
         result = result.sort_values(["betting_type", "created_at"])
-        result["running_total"] = result.groupby("betting_type")["bet_result"].cumsum()
-        result["overall_total"] = result["bet_result"].cumsum()
-        overall_total = result["overall_total"].iloc[-1]
-        number_of_bets = len(result)
 
         result["official_rating"] = result["official_rating"].fillna(0).astype(int)
 
@@ -158,9 +159,31 @@ class BettingService(BaseService):
                 "tfig",
             ],
         )
+        # First, separate dutch and non-dutch bets
+        dutch_bets = result[result["betting_type"].str.contains("dutch", case=False)]
+        non_dutch_bets = result[
+            ~result["betting_type"].str.contains("dutch", case=False)
+        ]
 
-        result = result.drop_duplicates(subset=["race_id", "dutch_sum"], keep="first")
+        # Drop duplicates for dutch bets
+        dutch_bets_deduplicated = dutch_bets.drop_duplicates(
+            subset=["race_id"], keep="first"
+        )
+
+        result = pd.concat([dutch_bets_deduplicated, non_dutch_bets]).sort_index()
         result["bet_number"] = result.groupby("betting_type").cumcount() + 1
+        result["running_total"] = result.groupby("betting_type")["bet_result"].cumsum()
+        result["overall_total"] = result["bet_result"].cumsum()
+        overall_total = result["overall_total"].iloc[-1]
+        number_of_bets = len(result)
+        session_results = result[result["session_id"] == self.betting_session_id]
+        session_results["overall_total"] = session_results["bet_result"].cumsum()
+        if len(session_results) > 0:
+            session_overall_total = session_results["overall_total"].iloc[-1]
+            session_number_of_bets = len(session_results)
+        else:
+            session_overall_total = 0
+            session_number_of_bets = 0
 
         result = result.sort_values(["betting_type", "created_at"])
         result_dict = self.sanitize_nan(result.to_dict(orient="records"))
@@ -168,6 +191,8 @@ class BettingService(BaseService):
         return {
             "number_of_bets": number_of_bets,
             "overall_total": overall_total,
+            "session_number_of_bets": session_number_of_bets,
+            "session_overall_total": session_overall_total,
             "result_dict": result_dict,
         }
 

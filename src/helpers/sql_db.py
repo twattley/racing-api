@@ -3,7 +3,7 @@
 import json
 
 import pydantic.json
-from sqlalchemy import Engine, create_engine
+from api_helpers.db_client import PsqlConnection, SQLDatabase
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from src.config import Config
@@ -24,7 +24,14 @@ def get_engine(db_url, config: Config):
     )
 
 
-def create_sync_engine(config: Config) -> Engine:
-    return create_engine(
-        f"postgresql://{config.db_username}:{config.db_password}@{config.db_host}:{config.db_port}/{config.db_name}"
+def get_db():
+    config = Config()
+    return SQLDatabase(
+        PsqlConnection(
+            user=config.db_username,
+            password=config.db_password,
+            host=config.db_host,
+            port=config.db_port,
+            db=config.db_name,
+        )
     )
