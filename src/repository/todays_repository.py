@@ -27,12 +27,14 @@ class TodaysRepository:
         result = await self.session.execute(
             text(
                 """
-                SELECT * 
-                    FROM public.todays_performance_data_mat_vw 
+                SELECT pd.*, h.bf_id::integer as betfair_id
+                    FROM public.todays_performance_data_mat_vw pd
+					LEFT JOIN public.horse h
+					on h.id = pd.horse_id
                     WHERE horse_id IN (
-                        SELECT horse_id 
-                        FROM public.todays_performance_data_mat_vw 
-                        WHERE race_id = :race_id
+                        SELECT pd.horse_id 
+                        FROM public.todays_performance_data_mat_vw pd
+                        WHERE pd.race_id = :race_id
                     )
                  """
             ),

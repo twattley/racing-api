@@ -4,9 +4,6 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from .simulator import Simulate
-
-simulator = Simulate()
 
 FILTER_WEEKS = 52
 FILTER_YEARS = 3
@@ -207,14 +204,17 @@ class BaseService:
             ],
             on="horse_id",
         )
+        print("historical")
+        print(historical.info())
+        print("today")
+        print(today.info())
 
         combined_data = pd.concat([historical, today]).sort_values(
             by=["todays_betfair_win_sp", "horse_id", "race_date"],
             ascending=[True, True, False],
         )
-
-        # combined_data = simulator.run_simulation(combined_data)
-
+        print("combined")
+        print(combined_data.info())
         grouped = combined_data.groupby(["horse_id", "horse_name"], sort=False)
 
         data = {

@@ -11,4 +11,5 @@ pandas
 pydantic_settings
 psycopg2-binary
 greenlet
-git+https://github.com/twattley/api-helpers@v0.2.0
+git+https://github.com/twattley/api-helpers@v0.3.4
+pyarrow

@@ -20,6 +20,11 @@ class Config(BaseSettings):
     bf_password: str
     bf_app_key: str
     bf_certs_path: str
+    do_spaces_endpoint_url: str
+    do_spaces_access_key: str
+    do_spaces_secret_access_key: str
+    do_spaces_bucket_name: str
+    do_spaces_region_name: str
 
 
 def load_config() -> Config:
