@@ -68,7 +68,7 @@ class BettingService(BaseService):
                 result["betting_type"].str.contains("lay", case=False),
                 result["betting_type"].str.contains("back", case=False),
             ],
-            [result["final_odds"] * 1.15, result["final_odds"] * 0.85],
+            [result["final_odds"] * 1.2, result["final_odds"] * 0.8],
             default=result["final_odds"],
         ).round(2)
 
@@ -80,50 +80,41 @@ class BettingService(BaseService):
             (result["number_of_runners"] >= 8)
             & (result["finishing_position"].isin(["1", "2", "3"]))
         )
-
+        # fmt: off
         conditions = [
-            (result["betting_type"] == "back_mid_price")
-            & (result["finishing_position"] == "1"),
-            (result["betting_type"] == "back_mid_price")
-            & (result["finishing_position"] != "1"),
-            (result["betting_type"] == "back_outsider")
-            & (result["finishing_position"] == "1"),
-            (result["betting_type"] == "back_outsider")
-            & (result["finishing_position"] != "1"),
+            (result["betting_type"] == "back_mid_price") & (result["finishing_position"] == "1"),
+            (result["betting_type"] == "back_mid_price") & (result["finishing_position"] != "1"),
+            (result["betting_type"] == "back_outsider") & (result["finishing_position"] == "1"),
+            (result["betting_type"] == "back_outsider") & (result["finishing_position"] != "1"),
             (result["betting_type"] == "back_outsider_place") & result["place"],
             (result["betting_type"] == "back_outsider_place") & ~result["place"],
-            (result["betting_type"] == "lay_favourite")
-            & (result["finishing_position"] == "1"),
-            (result["betting_type"] == "lay_favourite")
-            & (result["finishing_position"] != "1"),
+            (result["betting_type"] == "lay_favourite") & (result["finishing_position"] == "1"),
+            (result["betting_type"] == "lay_favourite") & (result["finishing_position"] != "1"),
             (result["betting_type"] == "lay_mid_price_place") & result["place"],
             (result["betting_type"] == "lay_mid_price_place") & ~result["place"],
-            (result["betting_type"] == "dutch_back")
-            & (result["finishing_position"] == "1"),
-            (result["betting_type"] == "dutch_back")
-            & (result["finishing_position"] != "1"),
-            (result["betting_type"] == "dutch_lay")
-            & (result["finishing_position"] == "1"),
-            (result["betting_type"] == "dutch_lay")
-            & (result["finishing_position"] != "1"),
+            (result["betting_type"] == "dutch_back") & (result["finishing_position"] == "1"),
+            (result["betting_type"] == "dutch_back") & (result["finishing_position"] != "1"),
+            (result["betting_type"] == "dutch_lay") & (result["finishing_position"] == "1"),
+            (result["betting_type"] == "dutch_lay") & (result["finishing_position"] != "1"),
         ]
 
         choices = [
-            (result["final_odds"] * 0.85 - 1).round(2),
-            -1,
-            (result["final_odds"] * 0.85 - 1).round(2),
-            -1,
-            (result["betfair_place_sp"] - 1).round(2),
-            -1,
-            (-(result["final_odds"] * 1.15 - 1)).round(2),
-            0.9,
-            (-(result["betfair_place_sp"] - 1)).round(2),
-            0.9,
-            (result["final_odds"] * 0.85 - 1).round(2),
-            -1,
-            (-(result["final_odds"] * 1.15 - 1)).round(2),
-            0.9,
+            (result["final_odds"] * 0.8 - 1).round(2), # back mid price win
+            -1, # back mid price loss
+            (result["final_odds"] * 0.8 - 1).round(2), # back outsider win
+            -1, # back outsider loss
+            (result["betfair_place_sp"] - 1).round(2), # back outsider place win
+            -1, # back outsider place loss
+            (-(result["final_odds"] * 1.2 - 1)).round(2), # lay favourite win
+            0.8, # lay favourite loss
+            (-(result["betfair_place_sp"] - 1)).round(2), # lay mid price place win you lose
+            0.8, # lay mid price place loss you win 
+            (result["final_odds"] * 0.8 - 1).round(2), # dutch back win
+            -1, # dutch back loss
+            (-(result["final_odds"] * 1.2 - 1)).round(2), # dutch lay win
+            0.8, # dutch lay loss
         ]
+        # fmt: on
 
         result["bet_result"] = np.select(conditions, choices, default=0)
 
